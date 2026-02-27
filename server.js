@@ -242,72 +242,74 @@ app.post("/api/ronda/nueva", (req, res) => {
 });
 
 // Obtener detalles de una ronda
-app.get("/api/ronda/:id", (req, res) => {
+// Obtener detalles de una ronda - VERSIÓN POSTGRESQL
+app.get("/api/ronda/:id", async (req, res) => {
   const rondaId = req.params.id;
+  console.log(`📥 GET /api/ronda/${rondaId} - Solicitado`);
 
-  db.get("SELECT * FROM rondas WHERE id = ?", [rondaId], (err, ronda) => {
-    if (err) return res.status(500).json({ error: "Error al obtener ronda" });
-    if (!ronda) return res.status(404).json({ error: "Ronda no encontrada" });
+  try {
+    // Obtener ronda
+    const rondaResult = await db.query("SELECT * FROM rondas WHERE id = $1", [
+      rondaId,
+    ]);
 
-    db.all(
-      "SELECT * FROM equipos_ronda WHERE ronda_id = ?",
+    if (rondaResult.rows.length === 0) {
+      return res.status(404).json({ error: "Ronda no encontrada" });
+    }
+
+    const ronda = rondaResult.rows[0];
+
+    // Obtener equipos
+    const equiposResult = await db.query(
+      "SELECT * FROM equipos_ronda WHERE ronda_id = $1",
       [rondaId],
-      (err, equipos) => {
-        if (err)
-          return res.status(500).json({ error: "Error al obtener equipos" });
-
-        db.all(
-          `
-          SELECT ar.*, j.nombre as jugador_nombre, e.nombre_equipo
-          FROM apuestas_ronda ar
-          JOIN jugadores j ON ar.jugador_id = j.id
-          JOIN equipos_ronda e ON ar.equipo_id = e.id
-          WHERE ar.ronda_id = ?
-          `,
-          [rondaId],
-          (err, apuestas) => {
-            if (err)
-              return res
-                .status(500)
-                .json({ error: "Error al obtener apuestas" });
-
-            db.all(
-              `
-              SELECT e.*, 
-                     a1.monto_apuesta as monto_jugadorA,
-                     a2.monto_apuesta as monto_jugadorB,
-                     j1.nombre as nombre_jugadorA,
-                     j2.nombre as nombre_jugadorB,
-                     jg.nombre as nombre_ganador
-              FROM enfrentamientos e
-              LEFT JOIN apuestas_ronda a1 ON e.jugador_equipoA_id = a1.id
-              LEFT JOIN apuestas_ronda a2 ON e.jugador_equipoB_id = a2.id
-              LEFT JOIN jugadores j1 ON a1.jugador_id = j1.id
-              LEFT JOIN jugadores j2 ON a2.jugador_id = j2.id
-              LEFT JOIN apuestas_ronda ag ON e.ganador_id = ag.id
-              LEFT JOIN jugadores jg ON ag.jugador_id = jg.id
-              WHERE e.ronda_id = ?
-              `,
-              [rondaId],
-              (err, enfrentamientos) => {
-                if (err)
-                  return res
-                    .status(500)
-                    .json({ error: "Error al obtener enfrentamientos" });
-
-                res.json({
-                  ronda,
-                  equipos,
-                  apuestas,
-                  enfrentamientos,
-                });
-              },
-            );
-          },
-        );
-      },
     );
-  });
+
+    // Obtener apuestas
+    const apuestasResult = await db.query(
+      `
+      SELECT ar.*, j.nombre as jugador_nombre, e.nombre_equipo
+      FROM apuestas_ronda ar
+      JOIN jugadores j ON ar.jugador_id = j.id
+      JOIN equipos_ronda e ON ar.equipo_id = e.id
+      WHERE ar.ronda_id = $1
+    `,
+      [rondaId],
+    );
+
+    // Obtener enfrentamientos
+    const enfrentamientosResult = await db.query(
+      `
+      SELECT e.*, 
+             a1.monto_apuesta as monto_jugadorA,
+             a2.monto_apuesta as monto_jugadorB,
+             j1.nombre as nombre_jugadorA,
+             j2.nombre as nombre_jugadorB,
+             jg.nombre as nombre_ganador
+      FROM enfrentamientos e
+      LEFT JOIN apuestas_ronda a1 ON e.jugador_equipoA_id = a1.id
+      LEFT JOIN apuestas_ronda a2 ON e.jugador_equipoB_id = a2.id
+      LEFT JOIN jugadores j1 ON a1.jugador_id = j1.id
+      LEFT JOIN jugadores j2 ON a2.jugador_id = j2.id
+      LEFT JOIN apuestas_ronda ag ON e.ganador_id = ag.id
+      LEFT JOIN jugadores jg ON ag.jugador_id = jg.id
+      WHERE e.ronda_id = $1
+    `,
+      [rondaId],
+    );
+
+    res.json({
+      ronda,
+      equipos: equiposResult.rows,
+      apuestas: apuestasResult.rows,
+      enfrentamientos: enfrentamientosResult.rows,
+    });
+  } catch (error) {
+    console.error("❌ Error en /api/ronda/:id:", error);
+    res
+      .status(500)
+      .json({ error: "Error al obtener ronda", detalle: error.message });
+  }
 });
 
 // Crear enfrentamientos
@@ -478,23 +480,34 @@ app.post("/api/ronda/finalizar/:id", (req, res) => {
 });
 
 // Listar todas las rondas
-app.get("/api/rondas", (req, res) => {
-  db.all(
-    `
-    SELECT r.*, 
+// Listar todas las rondas - VERSIÓN POSTGRESQL
+app.get("/api/rondas", async (req, res) => {
+  console.log("📥 GET /api/rondas - Solicitado");
+
+  try {
+    const result = await db.query(`
+      SELECT r.*, 
            COUNT(DISTINCT e.id) as total_enfrentamientos,
            COUNT(DISTINCT CASE WHEN e.ganador_id IS NOT NULL THEN e.id END) as enfrentamientos_resueltos
-    FROM rondas r
-    LEFT JOIN enfrentamientos e ON r.id = e.ronda_id
-    GROUP BY r.id
-    ORDER BY r.fecha DESC
-    `,
-    (err, rondas) => {
-      if (err)
-        return res.status(500).json({ error: "Error al obtener rondas" });
-      res.json(rondas);
-    },
-  );
+      FROM rondas r
+      LEFT JOIN enfrentamientos e ON r.id = e.ronda_id
+      GROUP BY r.id
+      ORDER BY r.fecha DESC
+    `);
+
+    console.log(`✅ Enviadas ${result.rows.length} rondas`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("❌ Error en /api/rondas:");
+    console.error("   Mensaje:", error.message);
+    console.error("   Código:", error.code);
+    console.error("   Stack:", error.stack);
+
+    res.status(500).json({
+      error: "Error al obtener rondas",
+      detalle: error.message,
+    });
+  }
 });
 
 // Ruta principal
