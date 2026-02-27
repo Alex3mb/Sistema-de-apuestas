@@ -10,34 +10,43 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ============================================
-// RUTAS DE JUGADORES
+// RUTAS DE JUGADORES - POSTGRESQL
 // ============================================
 
-// Registrar jugador
-app.post("/jugador", (req, res) => {
+// Registrar jugador - POSTGRESQL
+app.post("/jugador", async (req, res) => {
   const { nombre } = req.body;
-  if (!nombre) return res.status(400).send("Faltan datos");
+  console.log("📥 POST /jugador - Nombre:", nombre);
 
-  db.run(
-    "INSERT INTO jugadores (nombre, saldo_total, activo) VALUES (?, 0, 1)",
-    [nombre],
-    function (err) {
-      if (err) {
-        if (err.message.includes("UNIQUE"))
-          return res.status(400).send("El jugador ya existe");
-        return res.status(400).send("Error al registrar jugador");
-      }
-      res.send("Jugador registrado correctamente");
-    },
-  );
+  if (!nombre) return res.status(400).json({ error: "Faltan datos" });
+
+  try {
+    const result = await db.query(
+      "INSERT INTO jugadores (nombre, saldo_total, activo) VALUES ($1, $2, $3) RETURNING id",
+      [nombre, 0, 1],
+    );
+
+    console.log(`✅ Jugador registrado con ID: ${result.rows[0].id}`);
+    res.json({
+      mensaje: "Jugador registrado correctamente",
+      id: result.rows[0].id,
+    });
+  } catch (error) {
+    console.error("❌ Error registrando jugador:", error);
+
+    if (error.code === "23505") {
+      return res.status(400).json({ error: "El jugador ya existe" });
+    }
+
+    res.status(400).json({ error: "Error al registrar jugador" });
+  }
 });
 
-// Ver jugadores - VERSIÓN CON LOGS Y MANEJO DE ERRORES
+// Ver jugadores - POSTGRESQL
 app.get("/jugadores", async (req, res) => {
   console.log("📥 GET /jugadores - Solicitado");
 
   try {
-    // Usar db.query en lugar de db.all (ahora con PostgreSQL)
     const result = await db.query(
       "SELECT id, nombre, saldo_total, activo FROM jugadores ORDER BY activo DESC, nombre",
     );
@@ -45,101 +54,120 @@ app.get("/jugadores", async (req, res) => {
     console.log(`✅ Enviados ${result.rows.length} jugadores`);
     res.json(result.rows);
   } catch (error) {
-    console.error("❌ Error en /jugadores:");
-    console.error("   Mensaje:", error.message);
-    console.error("   Código:", error.code);
-    console.error("   Stack:", error.stack);
-
-    // Devolver error como JSON para que el frontend lo entienda
+    console.error("❌ Error en /jugadores:", error);
     res.status(500).json({
       error: "Error al obtener jugadores",
       detalle: error.message,
-      codigo: error.code,
     });
   }
 });
 
-// Modificar jugador (SIN nivel)
-app.post("/jugador/modificar", (req, res) => {
+// Modificar jugador - POSTGRESQL
+app.post("/jugador/modificar", async (req, res) => {
   const { id, nombre, saldo, activo } = req.body;
+  console.log("📥 POST /jugador/modificar - ID:", id);
 
-  if (!id) return res.status(400).send("ID requerido");
+  if (!id) return res.status(400).json({ error: "ID requerido" });
 
-  let sql = "UPDATE jugadores SET ";
-  let params = [];
-  let updates = [];
+  try {
+    let updates = [];
+    let params = [];
+    let paramIndex = 1;
 
-  if (nombre !== undefined) {
-    updates.push("nombre = ?");
-    params.push(nombre);
-  }
-  if (saldo !== undefined) {
-    updates.push("saldo_total = ?");
-    params.push(saldo);
-  }
-  if (activo !== undefined) {
-    updates.push("activo = ?");
-    params.push(activo);
-  }
-
-  if (updates.length === 0) {
-    return res.status(400).send("No hay datos para modificar");
-  }
-
-  sql += updates.join(", ");
-  sql += " WHERE id = ?";
-  params.push(id);
-
-  db.run(sql, params, function (err) {
-    if (err) {
-      if (err.message.includes("UNIQUE"))
-        return res.status(400).send("Ese nombre ya está en uso");
-      return res.status(400).send("Error al modificar jugador");
+    if (nombre !== undefined) {
+      updates.push(`nombre = $${paramIndex++}`);
+      params.push(nombre);
     }
-    if (this.changes === 0)
-      return res.status(404).send("Jugador no encontrado");
-    res.send("Jugador modificado correctamente");
-  });
+    if (saldo !== undefined) {
+      updates.push(`saldo_total = $${paramIndex++}`);
+      params.push(saldo);
+    }
+    if (activo !== undefined) {
+      updates.push(`activo = $${paramIndex++}`);
+      params.push(activo);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No hay datos para modificar" });
+    }
+
+    params.push(id);
+    const query = `UPDATE jugadores SET ${updates.join(", ")} WHERE id = $${paramIndex}`;
+
+    const result = await db.query(query, params);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Jugador no encontrado" });
+    }
+
+    res.json({ mensaje: "Jugador modificado correctamente" });
+  } catch (error) {
+    console.error("❌ Error modificando jugador:", error);
+
+    if (error.code === "23505") {
+      return res.status(400).json({ error: "Ese nombre ya está en uso" });
+    }
+
+    res.status(400).json({ error: "Error al modificar jugador" });
+  }
 });
 
-// Eliminar jugador
-app.delete("/jugador/eliminar/:id", (req, res) => {
-  const id = Number(req.params.id);
-  if (!id) return res.status(400).send("ID inválido");
+// Eliminar jugador - POSTGRESQL
+app.delete("/jugador/eliminar/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log("📥 DELETE /jugador/eliminar - ID:", id);
 
-  db.run("DELETE FROM jugadores WHERE id = ?", [id], function (err) {
-    if (err) {
-      return res.status(500).send("Error al eliminar jugador");
+  if (!id) return res.status(400).json({ error: "ID inválido" });
+
+  try {
+    const result = await db.query("DELETE FROM jugadores WHERE id = $1", [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Jugador no encontrado" });
     }
-    if (this.changes === 0)
-      return res.status(404).send("Jugador no encontrado");
-    res.send("Jugador eliminado correctamente");
-  });
+
+    res.json({ mensaje: "Jugador eliminado correctamente" });
+  } catch (error) {
+    console.error("❌ Error eliminando jugador:", error);
+    res.status(500).json({ error: "Error al eliminar jugador" });
+  }
 });
 
-// Actualizar saldo (sistema anterior)
-app.post("/resultado", (req, res) => {
+// Actualizar saldo (sistema anterior) - POSTGRESQL
+app.post("/resultado", async (req, res) => {
   const { jugador_id, cambio } = req.body;
-  if (!jugador_id || cambio === undefined)
-    return res.status(400).send("Faltan datos");
+  console.log("📥 POST /resultado - Jugador:", jugador_id, "Cambio:", cambio);
 
-  db.run(
-    "UPDATE jugadores SET saldo_total = saldo_total + ? WHERE id = ?",
-    [cambio, jugador_id],
-    function (err) {
-      if (err) return res.status(500).send("Error al actualizar saldo");
-      res.send("Saldo actualizado correctamente");
-    },
-  );
+  if (!jugador_id || cambio === undefined) {
+    return res.status(400).json({ error: "Faltan datos" });
+  }
+
+  try {
+    await db.query(
+      "UPDATE jugadores SET saldo_total = saldo_total + $1 WHERE id = $2",
+      [cambio, jugador_id],
+    );
+
+    res.json({ mensaje: "Saldo actualizado correctamente" });
+  } catch (error) {
+    console.error("❌ Error actualizando saldo:", error);
+    res.status(500).json({ error: "Error al actualizar saldo" });
+  }
 });
 
 // ============================================
-// RUTAS PARA EL SISTEMA 5 VS 5
+// RUTAS PARA EL SISTEMA 5 VS 5 - POSTGRESQL
 // ============================================
 
-// Crear una nueva ronda con equipos
-app.post("/api/ronda/nueva", (req, res) => {
+// Crear una nueva ronda con equipos - POSTGRESQL
+app.post("/api/ronda/nueva", async (req, res) => {
   const { equipoA, equipoB } = req.body;
+  console.log(
+    "📥 POST /api/ronda/nueva - Equipo A:",
+    equipoA?.length,
+    "Equipo B:",
+    equipoB?.length,
+  );
 
   if (!equipoA || !equipoB || equipoA.length === 0 || equipoB.length === 0) {
     return res
@@ -147,108 +175,73 @@ app.post("/api/ronda/nueva", (req, res) => {
       .json({ error: "Se requieren ambos equipos con jugadores" });
   }
 
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
+  const client = await db.pool.connect();
 
-    db.run("INSERT INTO rondas (estado) VALUES ('activa')", function (err) {
-      if (err) {
-        db.run("ROLLBACK");
-        return res.status(500).json({ error: "Error al crear ronda" });
-      }
+  try {
+    await client.query("BEGIN");
 
-      const rondaId = this.lastID;
+    // 1. Crear la ronda
+    const rondaResult = await client.query(
+      "INSERT INTO rondas (estado) VALUES ('activa') RETURNING id",
+    );
+    const rondaId = rondaResult.rows[0].id;
+    console.log(`✅ Ronda creada ID: ${rondaId}`);
 
-      db.run(
-        "INSERT INTO equipos_ronda (ronda_id, nombre_equipo) VALUES (?, 'A')",
-        [rondaId],
-        function (err) {
-          if (err) {
-            db.run("ROLLBACK");
-            return res.status(500).json({ error: "Error al crear equipo A" });
-          }
-          const equipoAId = this.lastID;
+    // 2. Crear equipo A
+    const equipoAResult = await client.query(
+      "INSERT INTO equipos_ronda (ronda_id, nombre_equipo) VALUES ($1, 'A') RETURNING id",
+      [rondaId],
+    );
+    const equipoAId = equipoAResult.rows[0].id;
 
-          db.run(
-            "INSERT INTO equipos_ronda (ronda_id, nombre_equipo) VALUES (?, 'B')",
-            [rondaId],
-            function (err) {
-              if (err) {
-                db.run("ROLLBACK");
-                return res
-                  .status(500)
-                  .json({ error: "Error al crear equipo B" });
-              }
-              const equipoBId = this.lastID;
+    // 3. Crear equipo B
+    const equipoBResult = await client.query(
+      "INSERT INTO equipos_ronda (ronda_id, nombre_equipo) VALUES ($1, 'B') RETURNING id",
+      [rondaId],
+    );
+    const equipoBId = equipoBResult.rows[0].id;
 
-              let apuestasPendientes = equipoA.length + equipoB.length;
-              let errorEnApuestas = false;
-
-              const verificarCompletado = () => {
-                apuestasPendientes--;
-                if (apuestasPendientes === 0 && !errorEnApuestas) {
-                  db.run("COMMIT");
-                  res.json({
-                    rondaId,
-                    equipoAId,
-                    equipoBId,
-                    mensaje: "Ronda creada exitosamente",
-                  });
-                }
-              };
-
-              equipoA.forEach((j) => {
-                db.run(
-                  "INSERT INTO apuestas_ronda (ronda_id, equipo_id, jugador_id, monto_apuesta) VALUES (?, ?, ?, ?)",
-                  [rondaId, equipoAId, j.jugador_id, j.apuesta || 0],
-                  function (err) {
-                    if (err) {
-                      if (!errorEnApuestas) {
-                        errorEnApuestas = true;
-                        db.run("ROLLBACK");
-                        return res.status(500).json({
-                          error: "Error al registrar apuesta del equipo A",
-                        });
-                      }
-                    }
-                    verificarCompletado();
-                  },
-                );
-              });
-
-              equipoB.forEach((j) => {
-                db.run(
-                  "INSERT INTO apuestas_ronda (ronda_id, equipo_id, jugador_id, monto_apuesta) VALUES (?, ?, ?, ?)",
-                  [rondaId, equipoBId, j.jugador_id, j.apuesta || 0],
-                  function (err) {
-                    if (err) {
-                      if (!errorEnApuestas) {
-                        errorEnApuestas = true;
-                        db.run("ROLLBACK");
-                        return res.status(500).json({
-                          error: "Error al registrar apuesta del equipo B",
-                        });
-                      }
-                    }
-                    verificarCompletado();
-                  },
-                );
-              });
-            },
-          );
-        },
+    // 4. Insertar apuestas del equipo A
+    for (const j of equipoA) {
+      await client.query(
+        "INSERT INTO apuestas_ronda (ronda_id, equipo_id, jugador_id, monto_apuesta) VALUES ($1, $2, $3, $4)",
+        [rondaId, equipoAId, j.jugador_id, j.apuesta || 0],
       );
+    }
+
+    // 5. Insertar apuestas del equipo B
+    for (const j of equipoB) {
+      await client.query(
+        "INSERT INTO apuestas_ronda (ronda_id, equipo_id, jugador_id, monto_apuesta) VALUES ($1, $2, $3, $4)",
+        [rondaId, equipoBId, j.jugador_id, j.apuesta || 0],
+      );
+    }
+
+    await client.query("COMMIT");
+
+    res.json({
+      rondaId,
+      equipoAId,
+      equipoBId,
+      mensaje: "Ronda creada exitosamente",
     });
-  });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("❌ Error creando ronda:", error);
+    res
+      .status(500)
+      .json({ error: "Error al crear ronda", detalle: error.message });
+  } finally {
+    client.release();
+  }
 });
 
-// Obtener detalles de una ronda
-// Obtener detalles de una ronda - VERSIÓN POSTGRESQL
+// Obtener detalles de una ronda - POSTGRESQL
 app.get("/api/ronda/:id", async (req, res) => {
   const rondaId = req.params.id;
   console.log(`📥 GET /api/ronda/${rondaId} - Solicitado`);
 
   try {
-    // Obtener ronda
     const rondaResult = await db.query("SELECT * FROM rondas WHERE id = $1", [
       rondaId,
     ]);
@@ -259,13 +252,11 @@ app.get("/api/ronda/:id", async (req, res) => {
 
     const ronda = rondaResult.rows[0];
 
-    // Obtener equipos
     const equiposResult = await db.query(
       "SELECT * FROM equipos_ronda WHERE ronda_id = $1",
       [rondaId],
     );
 
-    // Obtener apuestas
     const apuestasResult = await db.query(
       `
       SELECT ar.*, j.nombre as jugador_nombre, e.nombre_equipo
@@ -273,11 +264,10 @@ app.get("/api/ronda/:id", async (req, res) => {
       JOIN jugadores j ON ar.jugador_id = j.id
       JOIN equipos_ronda e ON ar.equipo_id = e.id
       WHERE ar.ronda_id = $1
-    `,
+      `,
       [rondaId],
     );
 
-    // Obtener enfrentamientos
     const enfrentamientosResult = await db.query(
       `
       SELECT e.*, 
@@ -294,7 +284,7 @@ app.get("/api/ronda/:id", async (req, res) => {
       LEFT JOIN apuestas_ronda ag ON e.ganador_id = ag.id
       LEFT JOIN jugadores jg ON ag.jugador_id = jg.id
       WHERE e.ronda_id = $1
-    `,
+      `,
       [rondaId],
     );
 
@@ -312,175 +302,122 @@ app.get("/api/ronda/:id", async (req, res) => {
   }
 });
 
-// Crear enfrentamientos
-app.post("/api/ronda/enfrentar", (req, res) => {
+// Crear enfrentamientos - POSTGRESQL
+app.post("/api/ronda/enfrentar", async (req, res) => {
   const { rondaId, emparejamientos } = req.body;
+  console.log(
+    `📥 POST /api/ronda/enfrentar - Ronda ${rondaId}, ${emparejamientos?.length} enfrentamientos`,
+  );
 
   if (!rondaId || !emparejamientos || emparejamientos.length === 0) {
     return res.status(400).json({ error: "Datos incompletos" });
   }
 
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
+  const client = await db.pool.connect();
 
-    let pendientes = emparejamientos.length;
-    let error = false;
+  try {
+    await client.query("BEGIN");
 
-    emparejamientos.forEach((e) => {
-      db.run(
+    for (const e of emparejamientos) {
+      await client.query(
         `INSERT INTO enfrentamientos 
          (ronda_id, jugador_equipoA_id, jugador_equipoB_id, monto_enfrentamiento) 
-         VALUES (?, ?, ?, ?)`,
+         VALUES ($1, $2, $3, $4)`,
         [rondaId, e.jugadorA_id, e.jugadorB_id, e.monto || 0],
-        function (err) {
-          if (err) {
-            error = true;
-            db.run("ROLLBACK");
-            return res
-              .status(500)
-              .json({ error: "Error al crear enfrentamiento" });
-          }
-
-          pendientes--;
-          if (pendientes === 0 && !error) {
-            db.run("COMMIT");
-            res.json({ mensaje: "Enfrentamientos creados exitosamente" });
-          }
-        },
       );
+    }
+
+    await client.query("COMMIT");
+    res.json({ mensaje: "Enfrentamientos creados exitosamente" });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("❌ Error creando enfrentamientos:", error);
+    res.status(500).json({
+      error: "Error al crear enfrentamientos",
+      detalle: error.message,
     });
-  });
+  } finally {
+    client.release();
+  }
 });
 
-// Finalizar ronda y calcular ganadores
-app.post("/api/ronda/finalizar/:id", (req, res) => {
+// Finalizar ronda y calcular ganadores - POSTGRESQL
+app.post("/api/ronda/finalizar/:id", async (req, res) => {
   const { resultados } = req.body;
   const rondaId = req.params.id;
 
-  console.log("🏁 Finalizando ronda:", rondaId);
-  console.log("Resultados recibidos:", resultados);
+  console.log(
+    `🏁 Finalizando ronda ${rondaId} con ${resultados?.length} resultados`,
+  );
 
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
+  const client = await db.pool.connect();
 
-    let pendientes = resultados.length;
-    let error = false;
+  try {
+    await client.query("BEGIN");
 
-    resultados.forEach((r) => {
-      db.run(
-        "UPDATE enfrentamientos SET ganador_id = ? WHERE id = ?",
+    // 1. Actualizar ganadores
+    for (const r of resultados) {
+      await client.query(
+        "UPDATE enfrentamientos SET ganador_id = $1 WHERE id = $2",
         [r.ganador_id, r.enfrentamiento_id],
-        function (err) {
-          if (err) {
-            error = true;
-            console.error("Error actualizando ganador:", err);
-            db.run("ROLLBACK");
-            return res
-              .status(500)
-              .json({ error: "Error al actualizar ganadores" });
-          }
-
-          pendientes--;
-          if (pendientes === 0 && !error) {
-            db.all(
-              `
-              SELECT 
-                a.jugador_id,
-                a.id as apuesta_id,
-                e.monto_enfrentamiento,
-                CASE 
-                  WHEN e.ganador_id = a.id THEN 'GANADOR'
-                  ELSE 'PERDEDOR'
-                END as resultado
-              FROM enfrentamientos e
-              JOIN apuestas_ronda a ON (a.id = e.jugador_equipoA_id OR a.id = e.jugador_equipoB_id)
-              WHERE e.ronda_id = ? AND e.ganador_id IS NOT NULL
-              `,
-              [rondaId],
-              (err, movimientos) => {
-                if (err) {
-                  console.error("Error calculando movimientos:", err);
-                  db.run("ROLLBACK");
-                  return res
-                    .status(500)
-                    .json({ error: "Error al calcular movimientos" });
-                }
-
-                console.log("Movimientos calculados:", movimientos);
-
-                let actualizaciones = movimientos.length;
-                let errorActualizacion = false;
-
-                if (actualizaciones === 0) {
-                  db.run(
-                    "UPDATE rondas SET estado = 'finalizada' WHERE id = ?",
-                    [rondaId],
-                  );
-                  db.run("COMMIT");
-                  return res.json({
-                    mensaje: "Ronda finalizada sin movimientos",
-                  });
-                }
-
-                movimientos.forEach((m) => {
-                  let cambio =
-                    m.resultado === "GANADOR"
-                      ? m.monto_enfrentamiento
-                      : -m.monto_enfrentamiento;
-
-                  console.log(
-                    `Jugador ${m.jugador_id}: ${m.resultado} $${cambio}`,
-                  );
-
-                  db.run(
-                    "UPDATE jugadores SET saldo_total = saldo_total + ? WHERE id = ?",
-                    [cambio, m.jugador_id],
-                    function (err) {
-                      if (err) {
-                        errorActualizacion = true;
-                        console.error("Error actualizando saldo:", err);
-                        db.run("ROLLBACK");
-                        return res
-                          .status(500)
-                          .json({ error: "Error al actualizar saldo" });
-                      }
-
-                      actualizaciones--;
-                      if (actualizaciones === 0 && !errorActualizacion) {
-                        db.run(
-                          "UPDATE rondas SET estado = 'finalizada' WHERE id = ?",
-                          [rondaId],
-                          (err) => {
-                            if (err) {
-                              db.run("ROLLBACK");
-                              return res
-                                .status(500)
-                                .json({ error: "Error al finalizar ronda" });
-                            }
-
-                            db.run("COMMIT");
-                            console.log("✅ Ronda finalizada exitosamente");
-                            res.json({
-                              mensaje: "Ronda finalizada exitosamente",
-                              movimientos,
-                            });
-                          },
-                        );
-                      }
-                    },
-                  );
-                });
-              },
-            );
-          }
-        },
       );
+    }
+
+    // 2. Calcular movimientos
+    const movimientos = await client.query(
+      `
+      SELECT 
+        a.jugador_id,
+        a.id as apuesta_id,
+        e.monto_enfrentamiento,
+        CASE 
+          WHEN e.ganador_id = a.id THEN 'GANADOR'
+          ELSE 'PERDEDOR'
+        END as resultado
+      FROM enfrentamientos e
+      JOIN apuestas_ronda a ON (a.id = e.jugador_equipoA_id OR a.id = e.jugador_equipoB_id)
+      WHERE e.ronda_id = $1 AND e.ganador_id IS NOT NULL
+      `,
+      [rondaId],
+    );
+
+    // 3. Actualizar saldos
+    for (const m of movimientos.rows) {
+      const cambio =
+        m.resultado === "GANADOR"
+          ? m.monto_enfrentamiento
+          : -m.monto_enfrentamiento;
+
+      await client.query(
+        "UPDATE jugadores SET saldo_total = saldo_total + $1 WHERE id = $2",
+        [cambio, m.jugador_id],
+      );
+    }
+
+    // 4. Marcar ronda como finalizada
+    await client.query(
+      "UPDATE rondas SET estado = 'finalizada' WHERE id = $1",
+      [rondaId],
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      mensaje: "Ronda finalizada exitosamente",
+      movimientos: movimientos.rows,
     });
-  });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("❌ Error finalizando ronda:", error);
+    res
+      .status(500)
+      .json({ error: "Error al finalizar ronda", detalle: error.message });
+  } finally {
+    client.release();
+  }
 });
 
-// Listar todas las rondas
-// Listar todas las rondas - VERSIÓN POSTGRESQL
+// Listar todas las rondas - POSTGRESQL
 app.get("/api/rondas", async (req, res) => {
   console.log("📥 GET /api/rondas - Solicitado");
 
@@ -498,11 +435,7 @@ app.get("/api/rondas", async (req, res) => {
     console.log(`✅ Enviadas ${result.rows.length} rondas`);
     res.json(result.rows);
   } catch (error) {
-    console.error("❌ Error en /api/rondas:");
-    console.error("   Mensaje:", error.message);
-    console.error("   Código:", error.code);
-    console.error("   Stack:", error.stack);
-
+    console.error("❌ Error en /api/rondas:", error);
     res.status(500).json({
       error: "Error al obtener rondas",
       detalle: error.message,
@@ -510,19 +443,15 @@ app.get("/api/rondas", async (req, res) => {
   }
 });
 
-// Ruta principal
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// ============================================
+// RUTAS DE DIAGNÓSTICO
+// ============================================
 
-// RUTA DE DIAGNÓSTICO TEMPORAL
+// Ruta de diagnóstico
 app.get("/api/diagnostico", async (req, res) => {
   try {
     console.log("🔍 Diagnóstico solicitado");
-
-    // Intentar consulta simple
     const result = await db.query("SELECT NOW() as tiempo");
-
     res.json({
       status: "✅ Conexión OK",
       timestamp: result.rows[0].tiempo,
@@ -533,17 +462,19 @@ app.get("/api/diagnostico", async (req, res) => {
     res.status(500).json({
       status: "❌ Error de conexión",
       error: error.message,
-      code: error.code,
     });
   }
 });
 
-// Al final de server.js, reemplaza la línea del puerto por esto:
+// Ruta principal
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Servidor corriendo en puerto ${PORT}`);
+  console.log(`📁 Archivos estáticos: ${path.join(__dirname, "public")}`);
+  console.log(`📁 Base de datos: PostgreSQL en Render`);
 });
-
-// ============================================
-// RUTA TEMPORAL PARA RESTAURAR DATOS (BORRAR DESPUÉS DE USAR)
-// ============================================

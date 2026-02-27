@@ -355,4 +355,5 @@ if (process.env.DATABASE_URL) {
 // Exportar la función query
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  pool: pool, // Exportar el pool también
 };
