@@ -8,51 +8,107 @@ if (process.env.DATABASE_URL) {
   // ============================================
   // MODO PRODUCCIÓN - PostgreSQL en Render
   // ============================================
-  console.log("🚀 Modo producción: Conectando a PostgreSQL...");
+  console.log("🚀 ===== MODO PRODUCCIÓN: PostgreSQL ====");
   console.log(
     "📌 DATABASE_URL encontrada:",
     process.env.DATABASE_URL ? "SÍ" : "NO",
   );
-  console.log(
-    "📌 Host:",
-    process.env.DATABASE_URL.split("@")[1]?.split("/")[0] || "desconocido",
-  );
+
+  // Mostrar información de la URL (ocultando contraseña)
+  try {
+    const urlParts = process.env.DATABASE_URL.split("@");
+    if (urlParts.length > 1) {
+      const hostPort = urlParts[1].split("/")[0];
+      console.log("📌 Host:", hostPort);
+      console.log(
+        "📌 Base de datos:",
+        urlParts[1].split("/")[1]?.split("?")[0] || "unknown",
+      );
+    } else {
+      console.log("📌 URL format: unknown");
+    }
+  } catch (e) {
+    console.log("📌 No se pudo parsear la URL");
+  }
 
   try {
+    // Limpiar la URL de posibles parámetros SSL conflictivos
+    const cleanUrl = process.env.DATABASE_URL.split("?")[0];
+    console.log("📌 Usando URL limpia (sin parámetros)");
+
     // Configurar el pool de conexiones
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: cleanUrl,
       ssl: {
-        rejectUnauthorized: false, // Necesario para Render
+        rejectUnauthorized: false, // Necesario para certificados de Render
       },
-      // Timeouts para evitar desconexiones
+      // Timeouts generosos para evitar desconexiones prematuras
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000, // Aumentado a 10 segundos
+      connectionTimeoutMillis: 15000, // 15 segundos para conectar
     });
 
     console.log("✅ Pool de conexiones creado");
+    console.log("⏳ Probando conexión a PostgreSQL...");
 
     // Probar la conexión inmediatamente
     pool.connect((err, client, release) => {
       if (err) {
-        console.error("❌ Error conectando a PostgreSQL:");
-        console.error("   Mensaje:", err.message);
+        console.error("❌ ERROR CONECTANDO A POSTGRESQL:");
         console.error("   Código:", err.code);
+        console.error("   Mensaje:", err.message);
         console.error("   Stack:", err.stack);
+
+        // Intentar con configuración alternativa
+        console.log("🔄 Intentando con configuración alternativa SSL...");
+
+        // Segundo intento con SSL diferente
+        const pool2 = new Pool({
+          connectionString: process.env.DATABASE_URL,
+          ssl: true,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 15000,
+        });
+
+        pool2.connect((err2, client2, release2) => {
+          if (err2) {
+            console.error("❌ También falló el segundo intento:", err2.message);
+          } else {
+            console.log("✅ Segundo intento EXITOSO");
+            pool = pool2;
+            release2();
+          }
+        });
       } else {
-        console.log("✅ Conectado a PostgreSQL exitosamente");
+        console.log("✅ CONEXIÓN EXITOSA a PostgreSQL");
 
         // Verificar versión
         client.query("SELECT version()", (err, res) => {
           if (err) {
-            console.error("❌ Error consultando versión:", err.message);
+            console.log("⚠️ No se pudo obtener versión:", err.message);
           } else {
             console.log(
               "📊 Versión PostgreSQL:",
-              res.rows[0].version.substring(0, 50) + "...",
+              res.rows[0].version.substring(0, 60) + "...",
             );
           }
         });
+
+        // Verificar tablas existentes
+        client.query(
+          `
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_schema = 'public'
+        `,
+          (err, res) => {
+            if (err) {
+              console.log("⚠️ No se pudo listar tablas:", err.message);
+            } else {
+              const tablas = res.rows.map((r) => r.table_name).join(", ");
+              console.log("📋 Tablas existentes:", tablas || "ninguna");
+            }
+          },
+        );
 
         release();
       }
@@ -60,9 +116,9 @@ if (process.env.DATABASE_URL) {
 
     // Función para crear tablas si no existen
     const crearTablas = async () => {
-      try {
-        console.log("📦 Creando/verificando tablas en PostgreSQL...");
+      console.log("📦 Creando/verificando tablas en PostgreSQL...");
 
+      try {
         // Tabla jugadores
         console.log("   → Creando tabla jugadores...");
         await pool.query(`
@@ -125,48 +181,48 @@ if (process.env.DATABASE_URL) {
         `);
         console.log("   ✅ Tabla enfrentamientos lista");
 
-        console.log(
-          "🎉 ¡Todas las tablas creadas/verificadas correctamente en PostgreSQL!",
-        );
+        console.log("🎉 ¡TODAS LAS TABLAS VERIFICADAS CORRECTAMENTE!");
 
-        // Verificar que las tablas tienen datos (opcional)
+        // Contar registros existentes
         try {
           const result = await pool.query("SELECT COUNT(*) FROM jugadores");
           console.log(`📊 Total jugadores en BD: ${result.rows[0].count}`);
         } catch (err) {
-          console.log(
-            "⚠️ No se pudo contar jugadores (tabla vacía o error):",
-            err.message,
-          );
+          console.log("ℹ️ Tabla jugadores vacía o sin datos");
         }
       } catch (err) {
-        console.error("❌ Error crítico creando tablas:");
+        console.error("❌ ERROR CREANDO TABLAS:");
         console.error("   Mensaje:", err.message);
         console.error("   Código:", err.code);
         console.error("   Stack:", err.stack);
-        throw err; // Re-lanzar para que se detenga la aplicación
+        throw err;
       }
     };
 
-    // Ejecutar creación de tablas (sin await aquí para no bloquear)
+    // Ejecutar creación de tablas
     crearTablas().catch((err) => {
-      console.error(
-        "❌ Fallo fatal en migración de tablas. La aplicación no puede continuar.",
-      );
-      process.exit(1);
+      console.error("❌ ERROR FATAL: No se pudieron crear las tablas");
+      console.error("   La aplicación continuará pero puede tener problemas");
     });
   } catch (err) {
-    console.error("❌ Error crítico configurando PostgreSQL:");
+    console.error("❌ ERROR CRÍTICO CONFIGURANDO POSTGRESQL:");
     console.error("   Mensaje:", err.message);
     console.error("   Stack:", err.stack);
-    process.exit(1);
+
+    // Crear un pool ficticio para que la app no explote
+    pool = {
+      query: async () => {
+        console.error("⚠️ Intentando consultar sin conexión a BD");
+        return { rows: [], rowCount: 0 };
+      },
+    };
   }
 } else {
   // ============================================
   // MODO DESARROLLO - SQLite local
   // ============================================
-  console.log("💻 Modo desarrollo: Usando SQLite local");
-  console.log("📌 DATABASE_URL no encontrada, usando base de datos local");
+  console.log("💻 ===== MODO DESARROLLO: SQLite =====");
+  console.log("📌 DATABASE_URL no encontrada, usando SQLite local");
 
   try {
     const sqlite3 = require("sqlite3");
@@ -243,6 +299,15 @@ if (process.env.DATABASE_URL) {
       console.log("🎉 Todas las tablas SQLite verificadas");
     });
 
+    // Contar registros
+    sqliteDb.get("SELECT COUNT(*) as count FROM jugadores", (err, row) => {
+      if (err) {
+        console.log("ℹ️ No se pudo contar jugadores");
+      } else {
+        console.log(`📊 Total jugadores locales: ${row.count}`);
+      }
+    });
+
     // Adaptador para que SQLite tenga la misma interfaz que PostgreSQL
     pool = {
       query: (text, params) => {
@@ -273,14 +338,21 @@ if (process.env.DATABASE_URL) {
 
     console.log("✅ Adaptador SQLite listo para usar");
   } catch (err) {
-    console.error("❌ Error configurando SQLite:");
+    console.error("❌ ERROR CONFIGURANDO SQLITE:");
     console.error("   Mensaje:", err.message);
     console.error("   Stack:", err.stack);
-    process.exit(1);
+
+    // Crear un pool ficticio
+    pool = {
+      query: async () => {
+        console.error("⚠️ SQLite no disponible");
+        return { rows: [], rowCount: 0 };
+      },
+    };
   }
 }
 
-// Exportar la función query (funciona igual en producción y desarrollo)
+// Exportar la función query
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };
