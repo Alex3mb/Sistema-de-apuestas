@@ -1,0 +1,1868 @@
+{
+  "jugadores": [
+    {
+      "id": 2,
+      "nombre": "MindLag 65%",
+      "saldo_total": 102.5,
+      "activo": 1
+    },
+    {
+      "id": 3,
+      "nombre": "Pro",
+      "saldo_total": 5,
+      "activo": 1
+    },
+    {
+      "id": 11,
+      "nombre": "Kuroashi",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 12,
+      "nombre": "Piquerachyo",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 14,
+      "nombre": "Luchito",
+      "saldo_total": 17,
+      "activo": 1
+    },
+    {
+      "id": 15,
+      "nombre": "Lier",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 16,
+      "nombre": "CarryDePeso",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 17,
+      "nombre": "Fabri",
+      "saldo_total": 17.5,
+      "activo": 1
+    },
+    {
+      "id": 18,
+      "nombre": "DaykaElBully",
+      "saldo_total": -7.5,
+      "activo": 0
+    },
+    {
+      "id": 19,
+      "nombre": "Pollowsky",
+      "saldo_total": 12.5,
+      "activo": 1
+    },
+    {
+      "id": 20,
+      "nombre": "Gohan",
+      "saldo_total": 15,
+      "activo": 1
+    },
+    {
+      "id": 21,
+      "nombre": "Pichulon",
+      "saldo_total": 10,
+      "activo": 1
+    },
+    {
+      "id": 22,
+      "nombre": "Gab",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 23,
+      "nombre": "Huaracinos",
+      "saldo_total": -15,
+      "activo": 0
+    },
+    {
+      "id": 24,
+      "nombre": "Pata Lebron",
+      "saldo_total": -5,
+      "activo": 0
+    },
+    {
+      "id": 25,
+      "nombre": "Dabu",
+      "saldo_total": -10,
+      "activo": 0
+    },
+    {
+      "id": 26,
+      "nombre": "Lebron",
+      "saldo_total": -25,
+      "activo": 0
+    },
+    {
+      "id": 27,
+      "nombre": "Cray Cray",
+      "saldo_total": 5,
+      "activo": 1
+    },
+    {
+      "id": 28,
+      "nombre": "Perrito",
+      "saldo_total": -15,
+      "activo": 0
+    },
+    {
+      "id": 29,
+      "nombre": "PozoMillonario",
+      "saldo_total": -50,
+      "activo": 0
+    },
+    {
+      "id": 30,
+      "nombre": "Neto",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 31,
+      "nombre": "Alec",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 32,
+      "nombre": "BenjaminSuppButton",
+      "saldo_total": 6.5,
+      "activo": 1
+    },
+    {
+      "id": 33,
+      "nombre": "Lechuga",
+      "saldo_total": 5,
+      "activo": 1
+    },
+    {
+      "id": 34,
+      "nombre": "PulgaCoquetaYRota",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 35,
+      "nombre": "TonyOño",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 36,
+      "nombre": "PuchiCarlex",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 37,
+      "nombre": "NoisiBoy",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 38,
+      "nombre": "Silver",
+      "saldo_total": 10,
+      "activo": 1
+    },
+    {
+      "id": 39,
+      "nombre": "Cen",
+      "saldo_total": 12.5,
+      "activo": 1
+    },
+    {
+      "id": 40,
+      "nombre": "Peter",
+      "saldo_total": 0,
+      "activo": 1
+    },
+    {
+      "id": 41,
+      "nombre": "Estorbo",
+      "saldo_total": 16,
+      "activo": 1
+    },
+    {
+      "id": 42,
+      "nombre": "Kiko",
+      "saldo_total": 10,
+      "activo": 1
+    },
+    {
+      "id": 43,
+      "nombre": "SkyLord",
+      "saldo_total": 10,
+      "activo": 1
+    },
+    {
+      "id": 44,
+      "nombre": "Nando.Shi",
+      "saldo_total": 10,
+      "activo": 1
+    }
+  ],
+  "rondas": [
+    {
+      "id": 1,
+      "fecha": "2026-02-26 19:52:18",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 2,
+      "fecha": "2026-02-26 19:53:14",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 3,
+      "fecha": "2026-02-26 20:04:14",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 4,
+      "fecha": "2026-02-26 20:04:43",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 5,
+      "fecha": "2026-02-26 20:18:06",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 6,
+      "fecha": "2026-02-26 20:23:37",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 7,
+      "fecha": "2026-02-26 20:23:43",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 8,
+      "fecha": "2026-02-26 20:23:51",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 9,
+      "fecha": "2026-02-26 20:23:54",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 10,
+      "fecha": "2026-02-26 20:24:03",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 11,
+      "fecha": "2026-02-26 20:28:05",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 12,
+      "fecha": "2026-02-26 20:28:32",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 13,
+      "fecha": "2026-02-26 20:34:34",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 14,
+      "fecha": "2026-02-26 20:35:44",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 15,
+      "fecha": "2026-02-26 20:35:56",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 16,
+      "fecha": "2026-02-26 20:44:50",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 17,
+      "fecha": "2026-02-26 20:45:25",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 18,
+      "fecha": "2026-02-26 20:46:55",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 19,
+      "fecha": "2026-02-26 21:00:20",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 20,
+      "fecha": "2026-02-26 21:00:54",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 21,
+      "fecha": "2026-02-26 21:05:10",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 22,
+      "fecha": "2026-02-26 21:08:17",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 23,
+      "fecha": "2026-02-26 21:10:03",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 24,
+      "fecha": "2026-02-26 21:10:43",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 25,
+      "fecha": "2026-02-26 21:57:55",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 26,
+      "fecha": "2026-02-26 23:54:29",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 27,
+      "fecha": "2026-02-27 00:09:28",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 28,
+      "fecha": "2026-02-27 03:03:49",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 29,
+      "fecha": "2026-02-27 04:04:25",
+      "estado": "activa",
+      "total_apuestas": 0
+    },
+    {
+      "id": 30,
+      "fecha": "2026-02-27 06:09:34",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 31,
+      "fecha": "2026-02-27 07:43:31",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    },
+    {
+      "id": 32,
+      "fecha": "2026-02-27 17:19:55",
+      "estado": "finalizada",
+      "total_apuestas": 0
+    }
+  ],
+  "equipos_ronda": [
+    {
+      "id": 1,
+      "ronda_id": 1,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 2,
+      "ronda_id": 1,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 3,
+      "ronda_id": 2,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 4,
+      "ronda_id": 2,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 5,
+      "ronda_id": 3,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 6,
+      "ronda_id": 3,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 7,
+      "ronda_id": 4,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 8,
+      "ronda_id": 4,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 9,
+      "ronda_id": 5,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 10,
+      "ronda_id": 5,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 11,
+      "ronda_id": 6,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 12,
+      "ronda_id": 6,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 13,
+      "ronda_id": 7,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 14,
+      "ronda_id": 7,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 15,
+      "ronda_id": 8,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 16,
+      "ronda_id": 8,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 17,
+      "ronda_id": 9,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 18,
+      "ronda_id": 9,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 19,
+      "ronda_id": 10,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 20,
+      "ronda_id": 10,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 21,
+      "ronda_id": 11,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 22,
+      "ronda_id": 11,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 23,
+      "ronda_id": 12,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 24,
+      "ronda_id": 12,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 25,
+      "ronda_id": 13,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 26,
+      "ronda_id": 13,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 27,
+      "ronda_id": 14,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 28,
+      "ronda_id": 14,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 29,
+      "ronda_id": 15,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 30,
+      "ronda_id": 15,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 31,
+      "ronda_id": 16,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 32,
+      "ronda_id": 16,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 33,
+      "ronda_id": 17,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 34,
+      "ronda_id": 17,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 35,
+      "ronda_id": 18,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 36,
+      "ronda_id": 18,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 37,
+      "ronda_id": 19,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 38,
+      "ronda_id": 19,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 39,
+      "ronda_id": 20,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 40,
+      "ronda_id": 20,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 41,
+      "ronda_id": 21,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 42,
+      "ronda_id": 21,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 43,
+      "ronda_id": 22,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 44,
+      "ronda_id": 22,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 45,
+      "ronda_id": 23,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 46,
+      "ronda_id": 23,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 47,
+      "ronda_id": 24,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 48,
+      "ronda_id": 24,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 49,
+      "ronda_id": 25,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 50,
+      "ronda_id": 25,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 51,
+      "ronda_id": 26,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 52,
+      "ronda_id": 26,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 53,
+      "ronda_id": 27,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 54,
+      "ronda_id": 27,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 55,
+      "ronda_id": 28,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 56,
+      "ronda_id": 28,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 57,
+      "ronda_id": 29,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 58,
+      "ronda_id": 29,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 59,
+      "ronda_id": 30,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 60,
+      "ronda_id": 30,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 61,
+      "ronda_id": 31,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 62,
+      "ronda_id": 31,
+      "nombre_equipo": "B"
+    },
+    {
+      "id": 63,
+      "ronda_id": 32,
+      "nombre_equipo": "A"
+    },
+    {
+      "id": 64,
+      "ronda_id": 32,
+      "nombre_equipo": "B"
+    }
+  ],
+  "apuestas_ronda": [
+    {
+      "id": 1,
+      "ronda_id": 1,
+      "equipo_id": 1,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 2,
+      "ronda_id": 1,
+      "equipo_id": 2,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 3,
+      "ronda_id": 2,
+      "equipo_id": 3,
+      "jugador_id": null,
+      "monto_apuesta": 15
+    },
+    {
+      "id": 4,
+      "ronda_id": 2,
+      "equipo_id": 4,
+      "jugador_id": null,
+      "monto_apuesta": 15
+    },
+    {
+      "id": 5,
+      "ronda_id": 3,
+      "equipo_id": 5,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 6,
+      "ronda_id": 3,
+      "equipo_id": 6,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 7,
+      "ronda_id": 4,
+      "equipo_id": 7,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 8,
+      "ronda_id": 4,
+      "equipo_id": 8,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 9,
+      "ronda_id": 5,
+      "equipo_id": 9,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 10,
+      "ronda_id": 5,
+      "equipo_id": 10,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 11,
+      "ronda_id": 6,
+      "equipo_id": 11,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 12,
+      "ronda_id": 6,
+      "equipo_id": 12,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 13,
+      "ronda_id": 7,
+      "equipo_id": 13,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 14,
+      "ronda_id": 7,
+      "equipo_id": 14,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 15,
+      "ronda_id": 8,
+      "equipo_id": 15,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 16,
+      "ronda_id": 8,
+      "equipo_id": 16,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 17,
+      "ronda_id": 9,
+      "equipo_id": 17,
+      "jugador_id": null,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 18,
+      "ronda_id": 9,
+      "equipo_id": 18,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 19,
+      "ronda_id": 10,
+      "equipo_id": 19,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 20,
+      "ronda_id": 10,
+      "equipo_id": 20,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 21,
+      "ronda_id": 11,
+      "equipo_id": 21,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 22,
+      "ronda_id": 11,
+      "equipo_id": 22,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 23,
+      "ronda_id": 12,
+      "equipo_id": 23,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 24,
+      "ronda_id": 12,
+      "equipo_id": 24,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 25,
+      "ronda_id": 13,
+      "equipo_id": 25,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 26,
+      "ronda_id": 13,
+      "equipo_id": 26,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 27,
+      "ronda_id": 14,
+      "equipo_id": 27,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 28,
+      "ronda_id": 14,
+      "equipo_id": 28,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 29,
+      "ronda_id": 15,
+      "equipo_id": 29,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 30,
+      "ronda_id": 15,
+      "equipo_id": 30,
+      "jugador_id": null,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 31,
+      "ronda_id": 16,
+      "equipo_id": 31,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 32,
+      "ronda_id": 16,
+      "equipo_id": 32,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 33,
+      "ronda_id": 17,
+      "equipo_id": 33,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 34,
+      "ronda_id": 17,
+      "equipo_id": 34,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 35,
+      "ronda_id": 18,
+      "equipo_id": 35,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 36,
+      "ronda_id": 18,
+      "equipo_id": 35,
+      "jugador_id": 9,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 37,
+      "ronda_id": 18,
+      "equipo_id": 36,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 38,
+      "ronda_id": 18,
+      "equipo_id": 36,
+      "jugador_id": 9,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 39,
+      "ronda_id": 19,
+      "equipo_id": 37,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 40,
+      "ronda_id": 19,
+      "equipo_id": 38,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 41,
+      "ronda_id": 20,
+      "equipo_id": 39,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 42,
+      "ronda_id": 20,
+      "equipo_id": 40,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 43,
+      "ronda_id": 21,
+      "equipo_id": 41,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 44,
+      "ronda_id": 21,
+      "equipo_id": 42,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 45,
+      "ronda_id": 22,
+      "equipo_id": 43,
+      "jugador_id": 2,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 46,
+      "ronda_id": 22,
+      "equipo_id": 44,
+      "jugador_id": 3,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 47,
+      "ronda_id": 23,
+      "equipo_id": 45,
+      "jugador_id": 2,
+      "monto_apuesta": 20
+    },
+    {
+      "id": 48,
+      "ronda_id": 23,
+      "equipo_id": 46,
+      "jugador_id": 3,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 49,
+      "ronda_id": 24,
+      "equipo_id": 47,
+      "jugador_id": 2,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 50,
+      "ronda_id": 24,
+      "equipo_id": 48,
+      "jugador_id": 3,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 51,
+      "ronda_id": 25,
+      "equipo_id": 49,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 52,
+      "ronda_id": 25,
+      "equipo_id": 50,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 53,
+      "ronda_id": 26,
+      "equipo_id": 51,
+      "jugador_id": 2,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 54,
+      "ronda_id": 26,
+      "equipo_id": 52,
+      "jugador_id": 19,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 55,
+      "ronda_id": 27,
+      "equipo_id": 53,
+      "jugador_id": 27,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 56,
+      "ronda_id": 27,
+      "equipo_id": 53,
+      "jugador_id": 20,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 57,
+      "ronda_id": 27,
+      "equipo_id": 53,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 58,
+      "ronda_id": 27,
+      "equipo_id": 54,
+      "jugador_id": 15,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 59,
+      "ronda_id": 27,
+      "equipo_id": 54,
+      "jugador_id": 14,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 60,
+      "ronda_id": 27,
+      "equipo_id": 53,
+      "jugador_id": 16,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 61,
+      "ronda_id": 27,
+      "equipo_id": 54,
+      "jugador_id": 21,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 62,
+      "ronda_id": 27,
+      "equipo_id": 53,
+      "jugador_id": 22,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 63,
+      "ronda_id": 27,
+      "equipo_id": 54,
+      "jugador_id": 11,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 64,
+      "ronda_id": 27,
+      "equipo_id": 54,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 65,
+      "ronda_id": 28,
+      "equipo_id": 55,
+      "jugador_id": 20,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 66,
+      "ronda_id": 28,
+      "equipo_id": 55,
+      "jugador_id": 21,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 67,
+      "ronda_id": 28,
+      "equipo_id": 55,
+      "jugador_id": 32,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 68,
+      "ronda_id": 28,
+      "equipo_id": 56,
+      "jugador_id": 39,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 69,
+      "ronda_id": 28,
+      "equipo_id": 55,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 70,
+      "ronda_id": 28,
+      "equipo_id": 56,
+      "jugador_id": 14,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 71,
+      "ronda_id": 28,
+      "equipo_id": 56,
+      "jugador_id": 12,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 72,
+      "ronda_id": 28,
+      "equipo_id": 55,
+      "jugador_id": 41,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 73,
+      "ronda_id": 28,
+      "equipo_id": 56,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 74,
+      "ronda_id": 28,
+      "equipo_id": 56,
+      "jugador_id": 19,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 75,
+      "ronda_id": 29,
+      "equipo_id": 57,
+      "jugador_id": 11,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 76,
+      "ronda_id": 29,
+      "equipo_id": 57,
+      "jugador_id": 21,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 77,
+      "ronda_id": 29,
+      "equipo_id": 57,
+      "jugador_id": 41,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 78,
+      "ronda_id": 29,
+      "equipo_id": 58,
+      "jugador_id": 39,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 79,
+      "ronda_id": 29,
+      "equipo_id": 58,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 80,
+      "ronda_id": 29,
+      "equipo_id": 57,
+      "jugador_id": 32,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 81,
+      "ronda_id": 29,
+      "equipo_id": 58,
+      "jugador_id": 14,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 82,
+      "ronda_id": 29,
+      "equipo_id": 58,
+      "jugador_id": 12,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 83,
+      "ronda_id": 29,
+      "equipo_id": 57,
+      "jugador_id": 19,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 84,
+      "ronda_id": 29,
+      "equipo_id": 58,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 85,
+      "ronda_id": 30,
+      "equipo_id": 59,
+      "jugador_id": 44,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 86,
+      "ronda_id": 30,
+      "equipo_id": 59,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 87,
+      "ronda_id": 30,
+      "equipo_id": 59,
+      "jugador_id": 19,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 88,
+      "ronda_id": 30,
+      "equipo_id": 60,
+      "jugador_id": 12,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 89,
+      "ronda_id": 30,
+      "equipo_id": 59,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 90,
+      "ronda_id": 30,
+      "equipo_id": 60,
+      "jugador_id": 43,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 91,
+      "ronda_id": 30,
+      "equipo_id": 59,
+      "jugador_id": 42,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 92,
+      "ronda_id": 30,
+      "equipo_id": 60,
+      "jugador_id": 39,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 93,
+      "ronda_id": 30,
+      "equipo_id": 60,
+      "jugador_id": 14,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 94,
+      "ronda_id": 30,
+      "equipo_id": 60,
+      "jugador_id": 27,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 95,
+      "ronda_id": 31,
+      "equipo_id": 61,
+      "jugador_id": 2,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 96,
+      "ronda_id": 31,
+      "equipo_id": 61,
+      "jugador_id": 42,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 97,
+      "ronda_id": 31,
+      "equipo_id": 61,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 98,
+      "ronda_id": 31,
+      "equipo_id": 62,
+      "jugador_id": 21,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 99,
+      "ronda_id": 31,
+      "equipo_id": 61,
+      "jugador_id": 44,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 100,
+      "ronda_id": 31,
+      "equipo_id": 62,
+      "jugador_id": 43,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 101,
+      "ronda_id": 31,
+      "equipo_id": 62,
+      "jugador_id": 11,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 102,
+      "ronda_id": 31,
+      "equipo_id": 61,
+      "jugador_id": 19,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 103,
+      "ronda_id": 31,
+      "equipo_id": 62,
+      "jugador_id": 27,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 104,
+      "ronda_id": 31,
+      "equipo_id": 62,
+      "jugador_id": 12,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 105,
+      "ronda_id": 32,
+      "equipo_id": 63,
+      "jugador_id": 20,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 106,
+      "ronda_id": 32,
+      "equipo_id": 63,
+      "jugador_id": 41,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 107,
+      "ronda_id": 32,
+      "equipo_id": 63,
+      "jugador_id": 21,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 108,
+      "ronda_id": 32,
+      "equipo_id": 64,
+      "jugador_id": 39,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 109,
+      "ronda_id": 32,
+      "equipo_id": 64,
+      "jugador_id": 14,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 110,
+      "ronda_id": 32,
+      "equipo_id": 64,
+      "jugador_id": 12,
+      "monto_apuesta": 10
+    },
+    {
+      "id": 111,
+      "ronda_id": 32,
+      "equipo_id": 63,
+      "jugador_id": 32,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 112,
+      "ronda_id": 32,
+      "equipo_id": 63,
+      "jugador_id": 17,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 113,
+      "ronda_id": 32,
+      "equipo_id": 64,
+      "jugador_id": 3,
+      "monto_apuesta": 5
+    },
+    {
+      "id": 114,
+      "ronda_id": 32,
+      "equipo_id": 64,
+      "jugador_id": 19,
+      "monto_apuesta": 5
+    }
+  ],
+  "enfrentamientos": [
+    {
+      "id": 1,
+      "ronda_id": 16,
+      "jugador_equipoA_id": 31,
+      "jugador_equipoB_id": 32,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 31
+    },
+    {
+      "id": 2,
+      "ronda_id": 17,
+      "jugador_equipoA_id": 33,
+      "jugador_equipoB_id": 34,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 3,
+      "ronda_id": 18,
+      "jugador_equipoA_id": 35,
+      "jugador_equipoB_id": 37,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 4,
+      "ronda_id": 18,
+      "jugador_equipoA_id": 36,
+      "jugador_equipoB_id": 38,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 5,
+      "ronda_id": 19,
+      "jugador_equipoA_id": 39,
+      "jugador_equipoB_id": 40,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 39
+    },
+    {
+      "id": 6,
+      "ronda_id": 20,
+      "jugador_equipoA_id": 41,
+      "jugador_equipoB_id": 42,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 41
+    },
+    {
+      "id": 7,
+      "ronda_id": 21,
+      "jugador_equipoA_id": 43,
+      "jugador_equipoB_id": 44,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 44
+    },
+    {
+      "id": 8,
+      "ronda_id": 22,
+      "jugador_equipoA_id": 45,
+      "jugador_equipoB_id": 46,
+      "monto_enfrentamiento": 10,
+      "ganador_id": 45
+    },
+    {
+      "id": 9,
+      "ronda_id": 23,
+      "jugador_equipoA_id": 47,
+      "jugador_equipoB_id": 48,
+      "monto_enfrentamiento": 10,
+      "ganador_id": 47
+    },
+    {
+      "id": 10,
+      "ronda_id": 24,
+      "jugador_equipoA_id": 49,
+      "jugador_equipoB_id": 50,
+      "monto_enfrentamiento": 10,
+      "ganador_id": 50
+    },
+    {
+      "id": 11,
+      "ronda_id": 25,
+      "jugador_equipoA_id": 51,
+      "jugador_equipoB_id": 52,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 51
+    },
+    {
+      "id": 12,
+      "ronda_id": 26,
+      "jugador_equipoA_id": 53,
+      "jugador_equipoB_id": 54,
+      "monto_enfrentamiento": 10,
+      "ganador_id": 53
+    },
+    {
+      "id": 13,
+      "ronda_id": 27,
+      "jugador_equipoA_id": 55,
+      "jugador_equipoB_id": 58,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 55
+    },
+    {
+      "id": 14,
+      "ronda_id": 27,
+      "jugador_equipoA_id": 56,
+      "jugador_equipoB_id": 59,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 56
+    },
+    {
+      "id": 15,
+      "ronda_id": 27,
+      "jugador_equipoA_id": 57,
+      "jugador_equipoB_id": 61,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 57
+    },
+    {
+      "id": 16,
+      "ronda_id": 27,
+      "jugador_equipoA_id": 60,
+      "jugador_equipoB_id": 63,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 60
+    },
+    {
+      "id": 17,
+      "ronda_id": 27,
+      "jugador_equipoA_id": 62,
+      "jugador_equipoB_id": 64,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 62
+    },
+    {
+      "id": 18,
+      "ronda_id": 28,
+      "jugador_equipoA_id": 65,
+      "jugador_equipoB_id": 68,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 65
+    },
+    {
+      "id": 19,
+      "ronda_id": 28,
+      "jugador_equipoA_id": 66,
+      "jugador_equipoB_id": 70,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 66
+    },
+    {
+      "id": 20,
+      "ronda_id": 28,
+      "jugador_equipoA_id": 67,
+      "jugador_equipoB_id": 71,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 67
+    },
+    {
+      "id": 21,
+      "ronda_id": 28,
+      "jugador_equipoA_id": 69,
+      "jugador_equipoB_id": 73,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 69
+    },
+    {
+      "id": 22,
+      "ronda_id": 28,
+      "jugador_equipoA_id": 72,
+      "jugador_equipoB_id": 74,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 72
+    },
+    {
+      "id": 23,
+      "ronda_id": 29,
+      "jugador_equipoA_id": 75,
+      "jugador_equipoB_id": 78,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 24,
+      "ronda_id": 29,
+      "jugador_equipoA_id": 76,
+      "jugador_equipoB_id": 79,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 25,
+      "ronda_id": 29,
+      "jugador_equipoA_id": 77,
+      "jugador_equipoB_id": 81,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 26,
+      "ronda_id": 29,
+      "jugador_equipoA_id": 80,
+      "jugador_equipoB_id": 82,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 27,
+      "ronda_id": 29,
+      "jugador_equipoA_id": 83,
+      "jugador_equipoB_id": 84,
+      "monto_enfrentamiento": 5,
+      "ganador_id": null
+    },
+    {
+      "id": 28,
+      "ronda_id": 30,
+      "jugador_equipoA_id": 85,
+      "jugador_equipoB_id": 88,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 88
+    },
+    {
+      "id": 29,
+      "ronda_id": 30,
+      "jugador_equipoA_id": 86,
+      "jugador_equipoB_id": 90,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 90
+    },
+    {
+      "id": 30,
+      "ronda_id": 30,
+      "jugador_equipoA_id": 87,
+      "jugador_equipoB_id": 92,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 92
+    },
+    {
+      "id": 31,
+      "ronda_id": 30,
+      "jugador_equipoA_id": 89,
+      "jugador_equipoB_id": 93,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 93
+    },
+    {
+      "id": 32,
+      "ronda_id": 30,
+      "jugador_equipoA_id": 91,
+      "jugador_equipoB_id": 94,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 94
+    },
+    {
+      "id": 33,
+      "ronda_id": 31,
+      "jugador_equipoA_id": 95,
+      "jugador_equipoB_id": 98,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 95
+    },
+    {
+      "id": 34,
+      "ronda_id": 31,
+      "jugador_equipoA_id": 96,
+      "jugador_equipoB_id": 100,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 96
+    },
+    {
+      "id": 35,
+      "ronda_id": 31,
+      "jugador_equipoA_id": 97,
+      "jugador_equipoB_id": 101,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 97
+    },
+    {
+      "id": 36,
+      "ronda_id": 31,
+      "jugador_equipoA_id": 99,
+      "jugador_equipoB_id": 103,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 99
+    },
+    {
+      "id": 37,
+      "ronda_id": 31,
+      "jugador_equipoA_id": 102,
+      "jugador_equipoB_id": 104,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 102
+    },
+    {
+      "id": 38,
+      "ronda_id": 32,
+      "jugador_equipoA_id": 105,
+      "jugador_equipoB_id": 108,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 105
+    },
+    {
+      "id": 39,
+      "ronda_id": 32,
+      "jugador_equipoA_id": 107,
+      "jugador_equipoB_id": 110,
+      "monto_enfrentamiento": 10,
+      "ganador_id": 107
+    },
+    {
+      "id": 40,
+      "ronda_id": 32,
+      "jugador_equipoA_id": 111,
+      "jugador_equipoB_id": 109,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 111
+    },
+    {
+      "id": 41,
+      "ronda_id": 32,
+      "jugador_equipoA_id": 112,
+      "jugador_equipoB_id": 113,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 112
+    },
+    {
+      "id": 42,
+      "ronda_id": 32,
+      "jugador_equipoA_id": 106,
+      "jugador_equipoB_id": 114,
+      "monto_enfrentamiento": 5,
+      "ganador_id": 106
+    }
+  ]
+}
