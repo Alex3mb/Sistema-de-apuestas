@@ -303,11 +303,13 @@ app.get("/api/ronda/:id", async (req, res) => {
 });
 
 // Crear enfrentamientos - POSTGRESQL
+// Crear enfrentamientos - POSTGRESQL
 app.post("/api/ronda/enfrentar", async (req, res) => {
   const { rondaId, emparejamientos } = req.body;
   console.log(
     `📥 POST /api/ronda/enfrentar - Ronda ${rondaId}, ${emparejamientos?.length} enfrentamientos`,
   );
+  console.log("📦 Datos recibidos:", JSON.stringify(emparejamientos, null, 2));
 
   if (!rondaId || !emparejamientos || emparejamientos.length === 0) {
     return res.status(400).json({ error: "Datos incompletos" });
@@ -319,15 +321,25 @@ app.post("/api/ronda/enfrentar", async (req, res) => {
     await client.query("BEGIN");
 
     for (const e of emparejamientos) {
-      await client.query(
+      console.log(`Insertando enfrentamiento:`, {
+        rondaId,
+        jugadorA_id: e.jugadorA_id,
+        jugadorB_id: e.jugadorB_id,
+        monto: e.monto,
+      });
+
+      const result = await client.query(
         `INSERT INTO enfrentamientos 
          (ronda_id, jugador_equipoA_id, jugador_equipoB_id, monto_enfrentamiento) 
-         VALUES ($1, $2, $3, $4)`,
+         VALUES ($1, $2, $3, $4) RETURNING id`,
         [rondaId, e.jugadorA_id, e.jugadorB_id, e.monto || 0],
       );
+
+      console.log(`✅ Enfrentamiento insertado con ID: ${result.rows[0].id}`);
     }
 
     await client.query("COMMIT");
+    console.log("✅ Todos los enfrentamientos guardados");
     res.json({ mensaje: "Enfrentamientos creados exitosamente" });
   } catch (error) {
     await client.query("ROLLBACK");
@@ -342,6 +354,7 @@ app.post("/api/ronda/enfrentar", async (req, res) => {
 });
 
 // Finalizar ronda y calcular ganadores - POSTGRESQL
+// Finalizar ronda y calcular ganadores - POSTGRESQL
 app.post("/api/ronda/finalizar/:id", async (req, res) => {
   const { resultados } = req.body;
   const rondaId = req.params.id;
@@ -349,6 +362,7 @@ app.post("/api/ronda/finalizar/:id", async (req, res) => {
   console.log(
     `🏁 Finalizando ronda ${rondaId} con ${resultados?.length} resultados`,
   );
+  console.log("📦 Resultados recibidos:", JSON.stringify(resultados, null, 2));
 
   const client = await db.pool.connect();
 
@@ -357,10 +371,20 @@ app.post("/api/ronda/finalizar/:id", async (req, res) => {
 
     // 1. Actualizar ganadores
     for (const r of resultados) {
-      await client.query(
-        "UPDATE enfrentamientos SET ganador_id = $1 WHERE id = $2",
+      console.log(
+        `Actualizando enfrentamiento ${r.enfrentamiento_id} con ganador ${r.ganador_id}`,
+      );
+
+      const updateResult = await client.query(
+        "UPDATE enfrentamientos SET ganador_id = $1 WHERE id = $2 RETURNING *",
         [r.ganador_id, r.enfrentamiento_id],
       );
+
+      if (updateResult.rowCount === 0) {
+        console.log(`⚠️ No se encontró enfrentamiento ${r.enfrentamiento_id}`);
+      } else {
+        console.log(`✅ Enfrentamiento ${r.enfrentamiento_id} actualizado`);
+      }
     }
 
     // 2. Calcular movimientos
@@ -370,6 +394,7 @@ app.post("/api/ronda/finalizar/:id", async (req, res) => {
         a.jugador_id,
         a.id as apuesta_id,
         e.monto_enfrentamiento,
+        e.id as enfrentamiento_id,
         CASE 
           WHEN e.ganador_id = a.id THEN 'GANADOR'
           ELSE 'PERDEDOR'
@@ -381,12 +406,18 @@ app.post("/api/ronda/finalizar/:id", async (req, res) => {
       [rondaId],
     );
 
+    console.log("📊 Movimientos calculados:", movimientos.rows);
+
     // 3. Actualizar saldos
     for (const m of movimientos.rows) {
       const cambio =
         m.resultado === "GANADOR"
           ? m.monto_enfrentamiento
           : -m.monto_enfrentamiento;
+
+      console.log(
+        `💰 Jugador ${m.jugador_id}: ${m.resultado} ${cambio > 0 ? "+" : ""}${cambio}`,
+      );
 
       await client.query(
         "UPDATE jugadores SET saldo_total = saldo_total + $1 WHERE id = $2",
@@ -402,6 +433,7 @@ app.post("/api/ronda/finalizar/:id", async (req, res) => {
 
     await client.query("COMMIT");
 
+    console.log("✅ Ronda finalizada exitosamente");
     res.json({
       mensaje: "Ronda finalizada exitosamente",
       movimientos: movimientos.rows,
