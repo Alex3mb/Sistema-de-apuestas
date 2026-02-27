@@ -43,7 +43,6 @@ function cargarJugadores() {
     .then((data) => {
       console.log("Datos recibidos:", data);
 
-      // Verificar que data es un array
       if (!Array.isArray(data)) {
         console.error("Error: data no es un array", data);
         document.getElementById("listaJugadores").innerHTML =
@@ -51,7 +50,6 @@ function cargarJugadores() {
         return;
       }
 
-      // Calcular totales - asegurarse de que saldo_total sea número
       const saldoActivos = data
         .filter((j) => j.activo === 1)
         .reduce((sum, j) => sum + (parseFloat(j.saldo_total) || 0), 0);
@@ -64,7 +62,6 @@ function cargarJugadores() {
       const activosCount = data.filter((j) => j.activo === 1).length;
       const inactivosCount = data.filter((j) => j.activo === 0).length;
 
-      // CUADRO DE RESUMEN PRINCIPAL
       let resumenHtml = `
         <div style="display: flex; gap: 20px; margin: 20px 0; padding: 15px; background: #2d2d2d; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #404040;">
           <div style="flex: 1; text-align: center; padding: 15px; background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%); color: white; border-radius: 5px;">
@@ -85,7 +82,6 @@ function cargarJugadores() {
         </div>
       `;
 
-      // CÁLCULOS PARA ESTADÍSTICAS ADICIONALES
       const activos = data.filter((j) => j.activo === 1);
       const promedioActivos =
         activos.length > 0
@@ -100,7 +96,6 @@ function cargarJugadores() {
             )
           : null;
 
-      // CUADRO DE ESTADÍSTICAS ADICIONALES
       let statsHtml = `
         <div style="margin: 10px 0 20px 0; padding: 15px; background: #2d2d2d; border-radius: 8px; border: 1px solid #404040; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
           <div style="display: flex; gap: 20px; justify-content: space-around; flex-wrap: wrap;">
@@ -117,7 +112,6 @@ function cargarJugadores() {
         </div>
       `;
 
-      // TABLA DE JUGADORES
       let tablaHtml =
         "<table border='1' cellpadding='8' style='width:100%; border-collapse: collapse;'>";
       tablaHtml +=
@@ -158,11 +152,9 @@ function cargarJugadores() {
 
       tablaHtml += "</table>";
 
-      // COMBINAR TODO
       document.getElementById("listaJugadores").innerHTML =
         resumenHtml + statsHtml + tablaHtml;
 
-      // RESTAURAR NIVELES
       if (typeof restaurarNiveles === "function") {
         restaurarNiveles();
       }
@@ -177,35 +169,23 @@ function cargarJugadores() {
 }
 
 // ============================================
-// FUNCIÓN MOSTRAR ESTADISTICAS (OPCIONAL)
+// NUEVAS FUNCIONES PARA NIVELES
 // ============================================
 
-// ============================================
-// NUEVAS FUNCIONES PARA NIVELES (PASO 2)
-// ============================================
-
-// Guardar nivel en localStorage
 function guardarNivel(jugadorId) {
   const select = document.getElementById(`nivel_${jugadorId}`);
   const nivel = select.value;
 
-  // Obtener niveles guardados o crear objeto vacío
   const niveles = JSON.parse(localStorage.getItem("niveles") || "{}");
-
-  // Guardar el nivel de este jugador
   niveles[jugadorId] = nivel;
-
-  // Guardar en localStorage
   localStorage.setItem("niveles", JSON.stringify(niveles));
 
   console.log(`✅ Nivel ${nivel} guardado para jugador ID ${jugadorId}`);
 }
 
-// Restaurar niveles desde localStorage
 function restaurarNiveles() {
   const niveles = JSON.parse(localStorage.getItem("niveles") || "{}");
 
-  // Recorrer todos los selects de nivel
   Object.keys(niveles).forEach((jugadorId) => {
     const select = document.getElementById(`nivel_${jugadorId}`);
     if (select) {
@@ -217,7 +197,6 @@ function restaurarNiveles() {
   });
 }
 
-// Función para resetear todos los niveles
 function resetearNiveles() {
   if (confirm("¿Resetear todos los niveles a Tier 1?")) {
     localStorage.removeItem("niveles");
@@ -227,7 +206,7 @@ function resetearNiveles() {
 }
 
 // ============================================
-// RESTO DE FUNCIONES (SIN CAMBIOS)
+// FUNCIONES DE EDICIÓN DE JUGADORES
 // ============================================
 
 function abrirModalEditar(id, nombre, saldo, activo) {
@@ -339,7 +318,6 @@ function ganador() {
 // FUNCIONES PARA EL SISTEMA 5 VS 5
 // ============================================
 
-// Variables globales
 let jugadoresDisponibles = [];
 let equipoA = [];
 let equipoB = [];
@@ -491,27 +469,30 @@ function eliminarJugadorB(index) {
   actualizarEquiposUI();
 }
 
+// ============================================
+// FUNCIÓN GUARDAR RONDA CON LOGS MEJORADOS
+// ============================================
 function guardarRonda() {
   console.log("🎲 INICIO guardarRonda");
 
-  // Construir equipos con apuestas desde los inputs
   const equipoAConApuestas = [];
   const equipoBConApuestas = [];
   const jugadoresSinSaldo = [];
 
-  // Procesar equipo A - Guardamos el ORDEN original
+  // Procesar equipo A
   for (let i = 0; i < equipoA.length; i++) {
     const select = document.getElementById(`selectA_${i}`);
     const input = document.getElementById(`apuestaA_${i}`);
 
     if (select && select.value) {
       const jugadorId = parseInt(select.value);
-      const apuesta = parseFloat(input?.value) || 0;
-      const jugador = jugadoresDisponibles.find((j) => j.id === jugadorId);
 
-      console.log(
-        `Jugador A${i}: ID=${jugadorId}, Apuesta=${apuesta}, Orden=${i}`,
-      );
+      // 🔍 LOG IMPORTANTE - Ver valor del input
+      console.log(`🔍 Input A${i} value:`, input?.value);
+      const apuesta = parseFloat(input?.value) || 0;
+      console.log(`💰 Apuesta A${i} parseada:`, apuesta);
+
+      const jugador = jugadoresDisponibles.find((j) => j.id === jugadorId);
 
       if (jugador && jugador.saldo_total < apuesta) {
         jugadoresSinSaldo.push(
@@ -527,19 +508,20 @@ function guardarRonda() {
     }
   }
 
-  // Procesar equipo B - Guardamos el ORDEN original
+  // Procesar equipo B
   for (let i = 0; i < equipoB.length; i++) {
     const select = document.getElementById(`selectB_${i}`);
     const input = document.getElementById(`apuestaB_${i}`);
 
     if (select && select.value) {
       const jugadorId = parseInt(select.value);
-      const apuesta = parseFloat(input?.value) || 0;
-      const jugador = jugadoresDisponibles.find((j) => j.id === jugadorId);
 
-      console.log(
-        `Jugador B${i}: ID=${jugadorId}, Apuesta=${apuesta}, Orden=${i}`,
-      );
+      // 🔍 LOG IMPORTANTE - Ver valor del input
+      console.log(`🔍 Input B${i} value:`, input?.value);
+      const apuesta = parseFloat(input?.value) || 0;
+      console.log(`💰 Apuesta B${i} parseada:`, apuesta);
+
+      const jugador = jugadoresDisponibles.find((j) => j.id === jugadorId);
 
       if (jugador && jugador.saldo_total < apuesta) {
         jugadoresSinSaldo.push(
@@ -555,10 +537,9 @@ function guardarRonda() {
     }
   }
 
-  console.log("Equipo A con apuestas (con orden):", equipoAConApuestas);
-  console.log("Equipo B con apuestas (con orden):", equipoBConApuestas);
+  console.log("📦 Datos a enviar - Equipo A:", equipoAConApuestas);
+  console.log("📦 Datos a enviar - Equipo B:", equipoBConApuestas);
 
-  // Validaciones
   if (equipoAConApuestas.length === 0 || equipoBConApuestas.length === 0) {
     alert("Ambos equipos deben tener al menos 1 jugador");
     return;
@@ -581,7 +562,6 @@ function guardarRonda() {
 
   mostrarCargando();
 
-  // Crear la ronda - Enviamos solo los datos necesarios
   fetch("/api/ronda/nueva", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -601,7 +581,6 @@ function guardarRonda() {
       console.log("📥 Respuesta de crear ronda:", data);
       if (!res.ok) throw new Error(data.error || JSON.stringify(data));
 
-      // 👉 AQUÍ ESTÁ LA LÍNEA CLAVE - Pasamos los arrays con el orden original
       return crearEnfrentamientosPorOrden(
         data.rondaId,
         equipoAConApuestas,
@@ -633,29 +612,32 @@ function guardarRonda() {
     });
 }
 
+// ============================================
+// FUNCIÓN CREAR ENFRENTAMIENTOS CON LOGS
+// ============================================
 function crearEnfrentamientosPorOrden(
   rondaId,
   equipoAOriginal,
   equipoBOriginal,
 ) {
   console.log("🎲 Creando enfrentamientos para ronda:", rondaId);
-  console.log("Orden original Equipo A:", equipoAOriginal);
-  console.log("Orden original Equipo B:", equipoBOriginal);
+  console.log("📊 equipoAOriginal:", equipoAOriginal);
+  console.log("📊 equipoBOriginal:", equipoBOriginal);
 
   return fetch(`/api/ronda/${rondaId}`)
     .then((res) => res.json())
     .then((data) => {
-      // Mapear las apuestas por jugador_id para poder buscarlas
+      console.log("📥 Datos de la ronda desde API:", data);
+
       const apuestasPorJugador = {};
       data.apuestas.forEach((a) => {
         apuestasPorJugador[a.jugador_id] = a;
       });
 
-      console.log("Apuestas por jugador:", apuestasPorJugador);
+      console.log("🎯 Apuestas por jugador:", apuestasPorJugador);
 
       const emparejamientos = [];
 
-      // Usar el MISMO ORDEN que en la UI
       for (
         let i = 0;
         i < Math.min(equipoAOriginal.length, equipoBOriginal.length);
@@ -664,22 +646,27 @@ function crearEnfrentamientosPorOrden(
         const jugadorA = equipoAOriginal[i];
         const jugadorB = equipoBOriginal[i];
 
-        // Buscar las apuestas correspondientes
+        console.log(`🔍 Buscando enfrentamiento ${i + 1}:`, {
+          jugadorA_id: jugadorA.jugador_id,
+          jugadorB_id: jugadorB.jugador_id,
+          apuestaA_original: jugadorA.apuesta,
+          apuestaB_original: jugadorB.apuesta,
+        });
+
         const apuestaA = apuestasPorJugador[jugadorA.jugador_id];
         const apuestaB = apuestasPorJugador[jugadorB.jugador_id];
 
         if (apuestaA && apuestaB) {
-          const montoA = apuestaA.monto_apuesta;
-          const montoB = apuestaB.monto_apuesta;
-          const montoEnfrentamiento = (montoA + montoB) / 2; // Promedio
+          const montoA = parseFloat(apuestaA.monto_apuesta) || 0;
+          const montoB = parseFloat(apuestaB.monto_apuesta) || 0;
+          const montoEnfrentamiento = (montoA + montoB) / 2;
 
-          console.log(`✅ Enfrentamiento ${i + 1}:`, {
-            linea: i + 1,
+          console.log(`💰 Enfrentamiento ${i + 1}:`, {
             jugadorA: apuestaA.jugador_nombre,
-            apuestaA: montoA,
+            montoA: montoA,
             jugadorB: apuestaB.jugador_nombre,
-            apuestaB: montoB,
-            monto: montoEnfrentamiento,
+            montoB: montoB,
+            montoCalculado: montoEnfrentamiento,
           });
 
           emparejamientos.push({
@@ -687,10 +674,14 @@ function crearEnfrentamientosPorOrden(
             jugadorB_id: apuestaB.id,
             monto: montoEnfrentamiento,
           });
+        } else {
+          console.log(
+            `❌ No se encontraron apuestas para enfrentamiento ${i + 1}`,
+          );
         }
       }
 
-      console.log("Emparejamientos a crear:", emparejamientos);
+      console.log("📦 Emparejamientos a enviar:", emparejamientos);
 
       if (emparejamientos.length === 0) {
         return {
@@ -706,6 +697,7 @@ function crearEnfrentamientosPorOrden(
         body: JSON.stringify({ rondaId, emparejamientos }),
       }).then(async (res) => {
         const text = await res.text();
+        console.log("📨 Respuesta de enfrentar:", text);
         if (!res.ok) throw new Error(text);
         return { rondaId, totalEnfrentamientos: emparejamientos.length };
       });
@@ -903,7 +895,6 @@ function mostrarResultadosRonda(rondaId) {
         (sum, e) => sum + (e.monto_enfrentamiento || 0),
         0,
       );
-      const totalEnfrentamientosB = totalEnfrentamientosA;
 
       let html = `
         <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 2px solid #333; border-radius: 10px; z-index: 1000; max-width: 700px; max-height: 80vh; overflow-y: auto;">
@@ -912,7 +903,7 @@ function mostrarResultadosRonda(rondaId) {
           <div style="display: flex; justify-content: space-between; margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;">
             <div><strong style="color: #2196F3;">Equipo A:</strong> $${totalEquipoA} (en juego: $${totalEnfrentamientosA})</div>
             <div><strong>VS</strong></div>
-            <div><strong style="color: #f44336;">Equipo B:</strong> $${totalEquipoB} (en juego: $${totalEnfrentamientosB})</div>
+            <div><strong style="color: #f44336;">Equipo B:</strong> $${totalEquipoB} (en juego: $${totalEnfrentamientosA})</div>
           </div>
           
           <p><strong>Selecciona el equipo ganador de la ronda:</strong></p>
@@ -1004,7 +995,6 @@ function cerrarModalResultados() {
 function agregarBotones() {
   const h1 = document.querySelector("h1");
 
-  // Limpiar botones existentes
   const botonesExistentes = h1.querySelectorAll("button");
   botonesExistentes.forEach((btn) => btn.remove());
 
@@ -1032,7 +1022,6 @@ function agregarBotones() {
   btnVerRondas.onclick = verRondas;
   h1.appendChild(btnVerRondas);
 
-  // Botón de reset niveles
   const btnReset = document.createElement("button");
   btnReset.textContent = "🔄 Reset Niveles";
   btnReset.style.marginLeft = "10px";
