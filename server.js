@@ -505,3 +505,104 @@ app.listen(PORT, "0.0.0.0", () => {
 // ============================================
 // RUTA PARA RESTAURAR DATOS DESDE JSON (VERSIÓN CON DIAGNÓSTICO)
 // ============================================
+// ============================================
+// RUTA PARA RESTAURAR DATOS COMPLETOS (USA ESTA AHORA)
+// ============================================
+app.get("/api/restaurar-ahora", (req, res) => {
+  const fs = require("fs");
+  const path = require("path");
+
+  try {
+    const jsonPath = path.join(__dirname, "datos.json");
+    const datos = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+
+    db.serialize(() => {
+      // Limpiar tablas
+      db.run("DELETE FROM enfrentamientos");
+      db.run("DELETE FROM apuestas_ronda");
+      db.run("DELETE FROM equipos_ronda");
+      db.run("DELETE FROM rondas");
+      db.run("DELETE FROM jugadores");
+
+      // Restaurar jugadores
+      const stmtJugadores = db.prepare(
+        "INSERT INTO jugadores (id, nombre, saldo_total, activo) VALUES (?, ?, ?, ?)",
+      );
+      datos.jugadores.forEach((j) => {
+        stmtJugadores.run(j.id, j.nombre, j.saldo_total, j.activo);
+      });
+      stmtJugadores.finalize();
+
+      // Restaurar rondas
+      if (datos.rondas && datos.rondas.length > 0) {
+        const stmtRondas = db.prepare(
+          "INSERT INTO rondas (id, fecha, estado, total_apuestas) VALUES (?, ?, ?, ?)",
+        );
+        datos.rondas.forEach((r) => {
+          stmtRondas.run(r.id, r.fecha, r.estado, r.total_apuestas || 0);
+        });
+        stmtRondas.finalize();
+      }
+
+      // Restaurar equipos
+      if (datos.equipos_ronda && datos.equipos_ronda.length > 0) {
+        const stmtEquipos = db.prepare(
+          "INSERT INTO equipos_ronda (id, ronda_id, nombre_equipo) VALUES (?, ?, ?)",
+        );
+        datos.equipos_ronda.forEach((e) => {
+          stmtEquipos.run(e.id, e.ronda_id, e.nombre_equipo);
+        });
+        stmtEquipos.finalize();
+      }
+
+      // Restaurar apuestas
+      if (datos.apuestas_ronda && datos.apuestas_ronda.length > 0) {
+        const stmtApuestas = db.prepare(
+          "INSERT INTO apuestas_ronda (id, ronda_id, equipo_id, jugador_id, monto_apuesta) VALUES (?, ?, ?, ?, ?)",
+        );
+        datos.apuestas_ronda.forEach((a) => {
+          stmtApuestas.run(
+            a.id,
+            a.ronda_id,
+            a.equipo_id,
+            a.jugador_id,
+            a.monto_apuesta,
+          );
+        });
+        stmtApuestas.finalize();
+      }
+
+      // Restaurar enfrentamientos
+      if (datos.enfrentamientos && datos.enfrentamientos.length > 0) {
+        const stmtEnfrentamientos = db.prepare(
+          "INSERT INTO enfrentamientos (id, ronda_id, jugador_equipoA_id, jugador_equipoB_id, monto_enfrentamiento, ganador_id) VALUES (?, ?, ?, ?, ?, ?)",
+        );
+        datos.enfrentamientos.forEach((e) => {
+          stmtEnfrentamientos.run(
+            e.id,
+            e.ronda_id,
+            e.jugador_equipoA_id,
+            e.jugador_equipoB_id,
+            e.monto_enfrentamiento,
+            e.ganador_id,
+          );
+        });
+        stmtEnfrentamientos.finalize();
+      }
+
+      // Verificar
+      db.all("SELECT * FROM jugadores", (err, jugadores) => {
+        res.send(`
+          <h1>✅ Restauración completada</h1>
+          <p>Se restauraron ${jugadores.length} jugadores</p>
+          <p><a href="/">Ver aplicación</a></p>
+          <script>
+            setTimeout(() => { window.location.href = '/'; }, 3000);
+          </script>
+        `);
+      });
+    });
+  } catch (error) {
+    res.send("Error: " + error.message);
+  }
+});
