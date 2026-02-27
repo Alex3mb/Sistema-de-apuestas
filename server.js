@@ -237,11 +237,13 @@ app.post("/api/ronda/nueva", async (req, res) => {
 });
 
 // Obtener detalles de una ronda - POSTGRESQL
+// Obtener detalles de una ronda - VERSIÓN CORREGIDA
 app.get("/api/ronda/:id", async (req, res) => {
   const rondaId = req.params.id;
   console.log(`📥 GET /api/ronda/${rondaId} - Solicitado`);
 
   try {
+    // Obtener ronda
     const rondaResult = await db.query("SELECT * FROM rondas WHERE id = $1", [
       rondaId,
     ]);
@@ -252,11 +254,13 @@ app.get("/api/ronda/:id", async (req, res) => {
 
     const ronda = rondaResult.rows[0];
 
+    // Obtener equipos
     const equiposResult = await db.query(
       "SELECT * FROM equipos_ronda WHERE ronda_id = $1",
       [rondaId],
     );
 
+    // Obtener apuestas con todos los detalles
     const apuestasResult = await db.query(
       `
       SELECT ar.*, j.nombre as jugador_nombre, e.nombre_equipo
@@ -264,18 +268,28 @@ app.get("/api/ronda/:id", async (req, res) => {
       JOIN jugadores j ON ar.jugador_id = j.id
       JOIN equipos_ronda e ON ar.equipo_id = e.id
       WHERE ar.ronda_id = $1
+      ORDER BY ar.id ASC
       `,
       [rondaId],
     );
 
+    // Obtener enfrentamientos con todos los detalles
     const enfrentamientosResult = await db.query(
       `
-      SELECT e.*, 
-             a1.monto_apuesta as monto_jugadorA,
-             a2.monto_apuesta as monto_jugadorB,
-             j1.nombre as nombre_jugadorA,
-             j2.nombre as nombre_jugadorB,
-             jg.nombre as nombre_ganador
+      SELECT 
+        e.id,
+        e.ronda_id,
+        e.monto_enfrentamiento,
+        e.ganador_id,
+        a1.id as apuestaA_id,
+        a1.jugador_id as jugadorA_id,
+        j1.nombre as nombre_jugadorA,
+        a1.monto_apuesta as monto_jugadorA,
+        a2.id as apuestaB_id,
+        a2.jugador_id as jugadorB_id,
+        j2.nombre as nombre_jugadorB,
+        a2.monto_apuesta as monto_jugadorB,
+        jg.nombre as nombre_ganador
       FROM enfrentamientos e
       LEFT JOIN apuestas_ronda a1 ON e.jugador_equipoA_id = a1.id
       LEFT JOIN apuestas_ronda a2 ON e.jugador_equipoB_id = a2.id
@@ -284,8 +298,13 @@ app.get("/api/ronda/:id", async (req, res) => {
       LEFT JOIN apuestas_ronda ag ON e.ganador_id = ag.id
       LEFT JOIN jugadores jg ON ag.jugador_id = jg.id
       WHERE e.ronda_id = $1
+      ORDER BY e.id ASC
       `,
       [rondaId],
+    );
+
+    console.log(
+      `📊 Ronda ${rondaId}: ${apuestasResult.rows.length} apuestas, ${enfrentamientosResult.rows.length} enfrentamientos`,
     );
 
     res.json({

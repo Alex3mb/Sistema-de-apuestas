@@ -629,47 +629,53 @@ function crearEnfrentamientosPorOrden(
     .then((data) => {
       console.log("📥 Datos de la ronda desde API:", data);
 
-      // Verificar que data.apuestas existe
-      if (!data.apuestas || data.apuestas.length === 0) {
-        console.error("❌ No hay apuestas en esta ronda");
-        return { rondaId, totalEnfrentamientos: 0, error: "No hay apuestas" };
-      }
-
-      // Crear un mapa de apuestas por jugador_id
+      // Crear un mapa de apuestas por jugador_id y también por orden
       const apuestasPorJugador = {};
+      const apuestasPorOrden = {
+        A: [],
+        B: [],
+      };
+
       data.apuestas.forEach((a) => {
         apuestasPorJugador[a.jugador_id] = a;
-        console.log(`📌 Apuesta de ${a.jugador_nombre}:`, {
-          apuesta_id: a.id,
+        if (a.nombre_equipo === "A") {
+          apuestasPorOrden.A.push(a);
+        } else {
+          apuestasPorOrden.B.push(a);
+        }
+        console.log(`📌 Apuesta:`, {
+          id: a.id,
+          jugador: a.jugador_nombre,
           jugador_id: a.jugador_id,
+          equipo: a.nombre_equipo,
           monto: a.monto_apuesta,
         });
       });
 
+      // Ordenar las apuestas por ID para mantener el orden de creación
+      apuestasPorOrden.A.sort((a, b) => a.id - b.id);
+      apuestasPorOrden.B.sort((a, b) => a.id - b.id);
+
+      console.log("📊 Apuestas ordenadas - Equipo A:", apuestasPorOrden.A);
+      console.log("📊 Apuestas ordenadas - Equipo B:", apuestasPorOrden.B);
+
       const emparejamientos = [];
 
+      // Usar el orden de las apuestas en la BD (que debería coincidir con el UI)
       for (
         let i = 0;
-        i < Math.min(equipoAOriginal.length, equipoBOriginal.length);
+        i < Math.min(apuestasPorOrden.A.length, apuestasPorOrden.B.length);
         i++
       ) {
-        const jugadorA = equipoAOriginal[i];
-        const jugadorB = equipoBOriginal[i];
-
-        console.log(`🔍 Buscando enfrentamiento ${i + 1}:`, {
-          jugadorA_id: jugadorA.jugador_id,
-          jugadorB_id: jugadorB.jugador_id,
-        });
-
-        const apuestaA = apuestasPorJugador[jugadorA.jugador_id];
-        const apuestaB = apuestasPorJugador[jugadorB.jugador_id];
+        const apuestaA = apuestasPorOrden.A[i];
+        const apuestaB = apuestasPorOrden.B[i];
 
         if (apuestaA && apuestaB) {
           const montoA = parseFloat(apuestaA.monto_apuesta) || 0;
           const montoB = parseFloat(apuestaB.monto_apuesta) || 0;
           const montoEnfrentamiento = (montoA + montoB) / 2;
 
-          console.log(`💰 Enfrentamiento ${i + 1} creado:`, {
+          console.log(`💰 Enfrentamiento ${i + 1}:`, {
             id_apuestaA: apuestaA.id,
             jugadorA: apuestaA.jugador_nombre,
             id_apuestaB: apuestaB.id,
@@ -681,13 +687,6 @@ function crearEnfrentamientosPorOrden(
             jugadorA_id: apuestaA.id,
             jugadorB_id: apuestaB.id,
             monto: montoEnfrentamiento,
-          });
-        } else {
-          console.error(`❌ No se encontraron apuestas:`, {
-            apuestaA_existe: !!apuestaA,
-            apuestaB_existe: !!apuestaB,
-            jugadorA_id: jugadorA.jugador_id,
-            jugadorB_id: jugadorB.jugador_id,
           });
         }
       }
@@ -711,24 +710,11 @@ function crearEnfrentamientosPorOrden(
         console.log("📨 Respuesta de enfrentar:", text);
 
         if (!res.ok) {
-          console.error("❌ Error en respuesta:", text);
           throw new Error(text);
-        }
-
-        // Intentar parsear la respuesta si es JSON
-        try {
-          const jsonResponse = JSON.parse(text);
-          console.log("✅ Respuesta parseada:", jsonResponse);
-        } catch (e) {
-          console.log("📝 Respuesta en texto:", text);
         }
 
         return { rondaId, totalEnfrentamientos: emparejamientos.length };
       });
-    })
-    .catch((err) => {
-      console.error("❌ Error en crearEnfrentamientosPorOrden:", err);
-      return { rondaId, totalEnfrentamientos: 0, error: err.message };
     });
 }
 
