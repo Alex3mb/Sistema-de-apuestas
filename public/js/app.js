@@ -31,30 +31,66 @@ function registrar() {
 // FUNCIÓN MODIFICADA - AGREGAR COLUMNA NIVEL
 // ============================================
 function cargarJugadores() {
+  console.log("Cargando jugadores...");
+
   fetch("/jugadores")
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
     .then((data) => {
-      // ============================================
-      // 1. CÁLCULOS PARA EL RESUMEN PRINCIPAL
-      // ============================================
+      console.log("Datos recibidos:", data);
+
+      // Verificar que data es un array
+      if (!Array.isArray(data)) {
+        console.error("Error: data no es un array", data);
+        document.getElementById("listaJugadores").innerHTML =
+          "<p style='color:red'>Error: Datos inválidos del servidor</p>";
+        return;
+      }
+
+      // Calcular totales - asegurarse de que saldo_total sea número
       const saldoActivos = data
         .filter((j) => j.activo === 1)
-        .reduce((sum, j) => sum + j.saldo_total, 0);
+        .reduce((sum, j) => sum + (parseFloat(j.saldo_total) || 0), 0);
 
       const saldoInactivos = data
         .filter((j) => j.activo === 0)
-        .reduce((sum, j) => sum + j.saldo_total, 0);
+        .reduce((sum, j) => sum + (parseFloat(j.saldo_total) || 0), 0);
 
       const totalJugadores = data.length;
       const activosCount = data.filter((j) => j.activo === 1).length;
       const inactivosCount = data.filter((j) => j.activo === 0).length;
 
-      // ============================================
-      // 2. CÁLCULOS PARA ESTADÍSTICAS ADICIONALES
-      // ============================================
+      // CUADRO DE RESUMEN PRINCIPAL
+      let resumenHtml = `
+        <div style="display: flex; gap: 20px; margin: 20px 0; padding: 15px; background: #2d2d2d; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #404040;">
+          <div style="flex: 1; text-align: center; padding: 15px; background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%); color: white; border-radius: 5px;">
+            <div style="font-size: 14px; opacity: 0.9;">🟢 JUGADORES ACTIVOS</div>
+            <div style="font-size: 24px; font-weight: bold;">$${saldoActivos.toFixed(2)}</div>
+            <div style="font-size: 12px; opacity: 0.9;">${activosCount} jugadores</div>
+          </div>
+          <div style="flex: 1; text-align: center; padding: 15px; background: linear-gradient(135deg, #c62828 0%, #f44336 100%); color: white; border-radius: 5px;">
+            <div style="font-size: 14px; opacity: 0.9;">🔴 JUGADORES INACTIVOS</div>
+            <div style="font-size: 24px; font-weight: bold;">$${saldoInactivos.toFixed(2)}</div>
+            <div style="font-size: 12px; opacity: 0.9;">${inactivosCount} jugadores</div>
+          </div>
+          <div style="flex: 1; text-align: center; padding: 15px; background: linear-gradient(135deg, #1565C0 0%, #2196F3 100%); color: white; border-radius: 5px;">
+            <div style="font-size: 14px; opacity: 0.9;">💰 SALDO TOTAL</div>
+            <div style="font-size: 24px; font-weight: bold;">$${(saldoActivos + saldoInactivos).toFixed(2)}</div>
+            <div style="font-size: 12px; opacity: 0.9;">${totalJugadores} jugadores</div>
+          </div>
+        </div>
+      `;
+
+      // CÁLCULOS PARA ESTADÍSTICAS ADICIONALES
       const activos = data.filter((j) => j.activo === 1);
       const promedioActivos =
-        activos.length > 0 ? (saldoActivos / activos.length).toFixed(2) : 0;
+        activos.length > 0
+          ? (saldoActivos / activos.length).toFixed(2)
+          : "0.00";
 
       const jugadorTop =
         activos.length > 0
@@ -64,51 +100,24 @@ function cargarJugadores() {
             )
           : null;
 
-      // ============================================
-      // 3. CUADRO DE RESUMEN PRINCIPAL
-      // ============================================
-      let resumenHtml = `
-        <div style="display: flex; gap: 20px; margin: 20px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-          <div style="flex: 1; text-align: center; padding: 10px; background: #4CAF50; color: white; border-radius: 5px;">
-            <div style="font-size: 14px;">🟢 JUGADORES ACTIVOS</div>
-            <div style="font-size: 24px; font-weight: bold;">$${saldoActivos.toFixed(2)}</div>
-            <div style="font-size: 12px;">${activosCount} jugadores</div>
-          </div>
-          <div style="flex: 1; text-align: center; padding: 10px; background: #f44336; color: white; border-radius: 5px;">
-            <div style="font-size: 14px;">🔴 JUGADORES INACTIVOS</div>
-            <div style="font-size: 24px; font-weight: bold;">$${saldoInactivos.toFixed(2)}</div>
-            <div style="font-size: 12px;">${inactivosCount} jugadores</div>
-          </div>
-          <div style="flex: 1; text-align: center; padding: 10px; background: #2196F3; color: white; border-radius: 5px;">
-            <div style="font-size: 14px;">💰 SALDO TOTAL</div>
-            <div style="font-size: 24px; font-weight: bold;">$${(saldoActivos + saldoInactivos).toFixed(2)}</div>
-            <div style="font-size: 12px;">${totalJugadores} jugadores</div>
-          </div>
-        </div>
-      `;
-
-      // ============================================
-      // 4. CUADRO DE ESTADÍSTICAS ADICIONALES
-      // ============================================
+      // CUADRO DE ESTADÍSTICAS ADICIONALES
       let statsHtml = `
-        <div style="margin: 10px 0 20px 0; padding: 15px; background: #e8f4f8; border-radius: 8px; border: 1px solid #b8e0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <div style="margin: 10px 0 20px 0; padding: 15px; background: #2d2d2d; border-radius: 8px; border: 1px solid #404040; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
           <div style="display: flex; gap: 20px; justify-content: space-around; flex-wrap: wrap;">
-            <div style="padding: 8px 15px; background: white; border-radius: 20px;">
-              <strong>📊 Promedio activos:</strong> $${promedioActivos}
+            <div style="padding: 8px 15px; background: #333; border-radius: 20px; border: 1px solid #4CAF50; color: #e0e0e0;">
+              <strong style="color: #4CAF50;">📊 Promedio activos:</strong> $${promedioActivos}
             </div>
-            <div style="padding: 8px 15px; background: white; border-radius: 20px;">
-              <strong>🏆 Mejor jugador:</strong> ${jugadorTop ? jugadorTop.nombre + " ($" + jugadorTop.saldo_total + ")" : "Ninguno"}
+            <div style="padding: 8px 15px; background: #333; border-radius: 20px; border: 1px solid #4CAF50; color: #e0e0e0;">
+              <strong style="color: #4CAF50;">🏆 Mejor jugador:</strong> ${jugadorTop ? jugadorTop.nombre + " ($" + jugadorTop.saldo_total + ")" : "Ninguno"}
             </div>
-            <div style="padding: 8px 15px; background: white; border-radius: 20px;">
-              <strong>📈 Total jugadores:</strong> ${totalJugadores} (${activosCount} activos, ${inactivosCount} inactivos)
+            <div style="padding: 8px 15px; background: #333; border-radius: 20px; border: 1px solid #4CAF50; color: #e0e0e0;">
+              <strong style="color: #4CAF50;">📈 Total:</strong> ${totalJugadores} (${activosCount} act, ${inactivosCount} ina)
             </div>
           </div>
         </div>
       `;
 
-      // ============================================
-      // 5. TABLA DE JUGADORES
-      // ============================================
+      // TABLA DE JUGADORES
       let tablaHtml =
         "<table border='1' cellpadding='8' style='width:100%; border-collapse: collapse;'>";
       tablaHtml +=
@@ -119,11 +128,11 @@ function cargarJugadores() {
 
         tablaHtml += `
           <tr ${!j.activo ? 'style="opacity: 0.6;"' : ""}>
-            <td>${j.nombre}</td>
-            <td>$${j.saldo_total}</td>
+            <td>${j.nombre || "Sin nombre"}</td>
+            <td>$${parseFloat(j.saldo_total || 0).toFixed(2)}</td>
             <td>${estado}</td>
             <td>
-              <select id="nivel_${j.id}" onchange="guardarNivel(${j.id})" style="padding: 5px; border-radius: 3px;">
+              <select id="nivel_${j.id}" onchange="guardarNivel(${j.id})" style="padding: 5px; border-radius: 3px; background: #333; color: #e0e0e0; border: 1px solid #404040;">
                 <option value="Tier 1">Tier 1</option>
                 <option value="Tier 2">Tier 2</option>
                 <option value="Tier 3">Tier 3</option>
@@ -149,19 +158,17 @@ function cargarJugadores() {
 
       tablaHtml += "</table>";
 
-      // ============================================
-      // 6. COMBINAR TODO Y MOSTRAR
-      // ============================================
+      // COMBINAR TODO
       document.getElementById("listaJugadores").innerHTML =
         resumenHtml + statsHtml + tablaHtml;
 
-      // ============================================
-      // 7. RESTAURAR NIVELES GUARDADOS
-      // ============================================
-      restaurarNiveles();
+      // RESTAURAR NIVELES
+      if (typeof restaurarNiveles === "function") {
+        restaurarNiveles();
+      }
     })
     .catch((err) => {
-      console.error("Error al cargar jugadores:", err);
+      console.error("Error completo:", err);
       document.getElementById("listaJugadores").innerHTML =
         "<p style='color:red'>Error al cargar jugadores: " +
         err.message +
