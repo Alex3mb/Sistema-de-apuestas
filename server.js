@@ -486,6 +486,55 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// ============================================
+// RUTA DE DIAGNÓSTICO - LISTAR ARCHIVOS (NUEVA)
+// ============================================
+app.get("/api/listar", (req, res) => {
+  const fs = require("fs");
+  const path = require("path");
+
+  let resultado = "<h1>📁 Listado de Archivos</h1>";
+
+  // Listar directorio raíz
+  const raiz = __dirname;
+  resultado += `<h2>Directorio raíz: ${raiz}</h2>`;
+
+  try {
+    const archivos = fs.readdirSync(raiz);
+    resultado += "<ul>";
+    archivos.forEach((archivo) => {
+      const stats = fs.statSync(path.join(raiz, archivo));
+      resultado += `<li>${archivo} (${stats.isDirectory() ? "📁" : "📄"}) - ${stats.size} bytes</li>`;
+    });
+    resultado += "</ul>";
+
+    // Buscar específicamente datos.json
+    const jsonPath = path.join(raiz, "datos.json");
+    if (fs.existsSync(jsonPath)) {
+      resultado += '<p style="color:green">✅ datos.json EXISTE</p>';
+      const stats = fs.statSync(jsonPath);
+      resultado += `<p>Tamaño: ${stats.size} bytes</p>`;
+
+      // Leer primeras líneas
+      const contenido = fs.readFileSync(jsonPath, "utf8").substring(0, 500);
+      resultado += `<p>Primeros caracteres: <pre>${contenido}</pre></p>`;
+    } else {
+      resultado += '<p style="color:red">❌ datos.json NO EXISTE</p>';
+    }
+  } catch (error) {
+    resultado += `<p style="color:red">Error: ${error.message}</p>`;
+  }
+
+  res.send(resultado);
+});
+
+// ============================================
+// RUTA PARA RESTAURAR DATOS DESDE JSON (LA QUE YA TENÍAS)
+// ============================================
+app.get("/api/restaurar-json", (req, res) => {
+  // ... tu código existente ...
+});
+
 // Al final de server.js, reemplaza la línea del puerto por esto:
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
