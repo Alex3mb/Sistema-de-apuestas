@@ -695,3 +695,52 @@ app.get("/api/restaurar-json", (req, res) => {
     res.send(html);
   }
 });
+
+// ============================================
+// RUTA DE PRUEBA - VER PRIMEROS REGISTROS
+// ============================================
+app.get("/api/prueba", (req, res) => {
+  const fs = require("fs");
+  const path = require("path");
+
+  try {
+    const jsonPath = path.join(__dirname, "datos.json");
+    const datos = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+
+    let html = "<h1>🔍 PRUEBA - Primeros registros</h1>";
+
+    // Mostrar primeros jugadores
+    html += "<h2>Primeros 3 jugadores:</h2>";
+    html +=
+      "<pre>" + JSON.stringify(datos.jugadores.slice(0, 3), null, 2) + "</pre>";
+
+    // Intentar una inserción simple
+    html += "<h2>Intentando insertar un jugador de prueba...</h2>";
+
+    db.run(
+      "INSERT INTO jugadores (nombre, saldo_total, activo) VALUES ('JUGADOR PRUEBA', 100, 1)",
+      function (err) {
+        if (err) {
+          html +=
+            '<p style="color:red">❌ Error al insertar: ' +
+            err.message +
+            "</p>";
+        } else {
+          html +=
+            '<p style="color:green">✅ Jugador de prueba insertado con ID: ' +
+            this.lastID +
+            "</p>";
+        }
+
+        // Mostrar todos los jugadores actuales
+        db.all("SELECT * FROM jugadores", (err, jugadores) => {
+          html += "<h2>Jugadores actuales en BD:</h2>";
+          html += "<pre>" + JSON.stringify(jugadores, null, 2) + "</pre>";
+          res.send(html);
+        });
+      },
+    );
+  } catch (error) {
+    res.send('<p style="color:red">Error: ' + error.message + "</p>");
+  }
+});
