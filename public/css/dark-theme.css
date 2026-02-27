@@ -1,0 +1,165 @@
+/* dark-theme.css */
+body {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+h1 {
+  color: #4caf50;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 10px;
+}
+
+h2 {
+  color: #e0e0e0;
+}
+
+button {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #2d2d2d;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th {
+  background: #4caf50;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+tr:hover {
+  background: #3d3d3d;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  padding: 8px;
+  border: 1px solid #404040;
+  border-radius: 5px;
+  background: #333;
+  color: #e0e0e0;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 5px #4caf50;
+}
+
+.resumen-box {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+}
+
+/* Modales oscuros */
+#modalEditar,
+#modalRonda,
+#modalRondas,
+#modalDetalle,
+#modalResultados {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#modalEditar input,
+#modalEditar select,
+#modalRonda input,
+#modalRonda select,
+#modalRondas input,
+#modalRondas select,
+#modalDetalle input,
+#modalDetalle select,
+#modalResultados input,
+#modalResultados select {
+  background: #333;
+  color: #e0e0e0;
+  border-color: #404040;
+}
+
+#modalEditar label,
+#modalRonda label,
+#modalRondas label,
+#modalDetalle label,
+#modalResultados label {
+  color: #e0e0e0;
+}
+
+/* Placeholders */
+::placeholder {
+  color: #888;
+  opacity: 1;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4caf50;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #45a049;
+}
+
+/* Cards y contenedores */
+div[style*="background: white"] {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #4caf50 !important;
+}
+
+/* Enlaces y textos */
+a {
+  color: #4caf50;
+}
+
+/* Bordes de inputs */
+input,
+select,
+button {
+  border: 1px solid #404040;
+}
+
+/* Hover effects */
+button {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0);
+}

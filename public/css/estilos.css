@@ -1,0 +1,33 @@
+/* Estilos adicionales */
+.modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translate(-50%, -60%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+.equipo-a {
+  border-left: 4px solid #2196f3;
+}
+
+.equipo-b {
+  border-left: 4px solid #f44336;
+}
+
+.estado-activa {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.estado-finalizada {
+  color: #4caf50;
+  font-weight: bold;
+}
