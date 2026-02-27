@@ -32,15 +32,31 @@ app.post("/jugador", (req, res) => {
   );
 });
 
-// Ver jugadores (SIN nivel)
-app.get("/jugadores", (req, res) => {
-  db.all(
-    "SELECT id, nombre, saldo_total, activo FROM jugadores ORDER BY activo DESC, nombre",
-    (err, rows) => {
-      if (err) return res.status(500).send("Error al obtener jugadores");
-      res.json(rows);
-    },
-  );
+// Ver jugadores - VERSIÓN CON LOGS Y MANEJO DE ERRORES
+app.get("/jugadores", async (req, res) => {
+  console.log("📥 GET /jugadores - Solicitado");
+
+  try {
+    // Usar db.query en lugar de db.all (ahora con PostgreSQL)
+    const result = await db.query(
+      "SELECT id, nombre, saldo_total, activo FROM jugadores ORDER BY activo DESC, nombre",
+    );
+
+    console.log(`✅ Enviados ${result.rows.length} jugadores`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("❌ Error en /jugadores:");
+    console.error("   Mensaje:", error.message);
+    console.error("   Código:", error.code);
+    console.error("   Stack:", error.stack);
+
+    // Devolver error como JSON para que el frontend lo entienda
+    res.status(500).json({
+      error: "Error al obtener jugadores",
+      detalle: error.message,
+      codigo: error.code,
+    });
+  }
 });
 
 // Modificar jugador (SIN nivel)
@@ -484,6 +500,29 @@ app.get("/api/rondas", (req, res) => {
 // Ruta principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// RUTA DE DIAGNÓSTICO TEMPORAL
+app.get("/api/diagnostico", async (req, res) => {
+  try {
+    console.log("🔍 Diagnóstico solicitado");
+
+    // Intentar consulta simple
+    const result = await db.query("SELECT NOW() as tiempo");
+
+    res.json({
+      status: "✅ Conexión OK",
+      timestamp: result.rows[0].tiempo,
+      db: "PostgreSQL",
+    });
+  } catch (error) {
+    console.error("❌ Error en diagnóstico:", error);
+    res.status(500).json({
+      status: "❌ Error de conexión",
+      error: error.message,
+      code: error.code,
+    });
+  }
 });
 
 // Al final de server.js, reemplaza la línea del puerto por esto:
