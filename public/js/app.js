@@ -629,12 +629,16 @@ function crearEnfrentamientosPorOrden(
     .then((data) => {
       console.log("📥 Datos de la ronda desde API:", data);
 
+      // Crear un mapa de apuestas por jugador_id
       const apuestasPorJugador = {};
       data.apuestas.forEach((a) => {
         apuestasPorJugador[a.jugador_id] = a;
+        console.log(
+          `📌 Apuesta de ${a.jugador_nombre}: ID=${a.id}, jugador_id=${a.jugador_id}`,
+        );
       });
 
-      console.log("🎯 Apuestas por jugador:", apuestasPorJugador);
+      console.log("🎯 Mapa de apuestas por jugador:", apuestasPorJugador);
 
       const emparejamientos = [];
 
@@ -649,8 +653,6 @@ function crearEnfrentamientosPorOrden(
         console.log(`🔍 Buscando enfrentamiento ${i + 1}:`, {
           jugadorA_id: jugadorA.jugador_id,
           jugadorB_id: jugadorB.jugador_id,
-          apuestaA_original: jugadorA.apuesta,
-          apuestaB_original: jugadorB.apuesta,
         });
 
         const apuestaA = apuestasPorJugador[jugadorA.jugador_id];
@@ -663,21 +665,25 @@ function crearEnfrentamientosPorOrden(
 
           console.log(`💰 Enfrentamiento ${i + 1}:`, {
             jugadorA: apuestaA.jugador_nombre,
+            id_apuestaA: apuestaA.id,
             montoA: montoA,
             jugadorB: apuestaB.jugador_nombre,
+            id_apuestaB: apuestaB.id,
             montoB: montoB,
             montoCalculado: montoEnfrentamiento,
           });
 
           emparejamientos.push({
-            jugadorA_id: apuestaA.id,
-            jugadorB_id: apuestaB.id,
+            jugadorA_id: apuestaA.id, // ✅ Usar el ID de la apuesta, no del jugador
+            jugadorB_id: apuestaB.id, // ✅ Usar el ID de la apuesta, no del jugador
             monto: montoEnfrentamiento,
           });
         } else {
           console.log(
             `❌ No se encontraron apuestas para enfrentamiento ${i + 1}`,
           );
+          console.log(`   apuestaA:`, apuestaA);
+          console.log(`   apuestaB:`, apuestaB);
         }
       }
 
