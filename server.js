@@ -491,3 +491,36 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Servidor corriendo en puerto ${PORT}`);
 });
+
+// ============================================
+// RUTA TEMPORAL PARA RESTAURAR DATOS (BORRAR DESPUÉS DE USAR)
+// ============================================
+app.get("/api/restaurar", (req, res) => {
+  const fs = require("fs");
+  const path = require("path");
+
+  try {
+    const backupPath = path.join(__dirname, "backup.sql");
+    console.log("🔍 Buscando backup en:", backupPath);
+
+    const backup = fs.readFileSync(backupPath, "utf8");
+    console.log("✅ Backup encontrado, tamaño:", backup.length, "bytes");
+
+    db.exec(backup, (err) => {
+      if (err) {
+        console.error("❌ Error restaurando:", err);
+        res.status(500).send("Error al restaurar: " + err.message);
+      } else {
+        console.log("🎉 Datos restaurados correctamente");
+        res.send(`
+          <h1>✅ Restauración exitosa</h1>
+          <p>Los datos han sido restaurados correctamente.</p>
+          <p><a href="/">Volver a la aplicación</a></p>
+        `);
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error:", error);
+    res.status(500).send("Error: " + error.message);
+  }
+});
