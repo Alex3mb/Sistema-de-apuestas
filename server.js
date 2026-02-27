@@ -495,30 +495,69 @@ app.listen(PORT, "0.0.0.0", () => {
 // ============================================
 // RUTA TEMPORAL PARA RESTAURAR DATOS (BORRAR DESPUÉS DE USAR)
 // ============================================
+// ============================================
+// RUTA TEMPORAL PARA RESTAURAR DATOS (VERSIÓN CORREGIDA)
+// ============================================
 app.get("/api/restaurar", (req, res) => {
   const fs = require("fs");
   const path = require("path");
 
   try {
+    // En Render, los archivos están en /opt/render/project/src/
     const backupPath = path.join(__dirname, "backup.sql");
     console.log("🔍 Buscando backup en:", backupPath);
 
-    const backup = fs.readFileSync(backupPath, "utf8");
-    console.log("✅ Backup encontrado, tamaño:", backup.length, "bytes");
+    if (!fs.existsSync(backupPath)) {
+      // Intentar en la raíz del proyecto
+      const altPath = path.join(process.cwd(), "backup.sql");
+      console.log("📁 No encontrado, intentando en:", altPath);
 
-    db.exec(backup, (err) => {
-      if (err) {
-        console.error("❌ Error restaurando:", err);
-        res.status(500).send("Error al restaurar: " + err.message);
+      if (fs.existsSync(altPath)) {
+        console.log("✅ Backup encontrado en:", altPath);
+        const backup = fs.readFileSync(altPath, "utf8");
+
+        db.exec(backup, (err) => {
+          if (err) {
+            console.error("❌ Error restaurando:", err);
+            res.status(500).send("Error al restaurar: " + err.message);
+          } else {
+            console.log("🎉 Datos restaurados correctamente");
+            res.send(`
+              <h1>✅ Restauración exitosa</h1>
+              <p>Los datos han sido restaurados correctamente.</p>
+              <p><a href="/">Volver a la aplicación</a></p>
+            `);
+          }
+        });
       } else {
-        console.log("🎉 Datos restaurados correctamente");
-        res.send(`
-          <h1>✅ Restauración exitosa</h1>
-          <p>Los datos han sido restaurados correctamente.</p>
-          <p><a href="/">Volver a la aplicación</a></p>
+        res.status(404).send(`
+          <h1>❌ Backup no encontrado</h1>
+          <p>No se encontró el archivo backup.sql en ninguna ubicación.</p>
+          <p>Buscado en:</p>
+          <ul>
+            <li>${backupPath}</li>
+            <li>${altPath}</li>
+          </ul>
         `);
       }
-    });
+    } else {
+      // Si lo encuentra en la primera ubicación
+      const backup = fs.readFileSync(backupPath, "utf8");
+
+      db.exec(backup, (err) => {
+        if (err) {
+          console.error("❌ Error restaurando:", err);
+          res.status(500).send("Error al restaurar: " + err.message);
+        } else {
+          console.log("🎉 Datos restaurados correctamente");
+          res.send(`
+            <h1>✅ Restauración exitosa</h1>
+            <p>Los datos han sido restaurados correctamente.</p>
+            <p><a href="/">Volver a la aplicación</a></p>
+          `);
+        }
+      });
+    }
   } catch (error) {
     console.error("❌ Error:", error);
     res.status(500).send("Error: " + error.message);
