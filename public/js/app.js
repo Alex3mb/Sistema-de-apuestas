@@ -621,20 +621,27 @@ function crearEnfrentamientosPorOrden(
   equipoBOriginal,
 ) {
   console.log("🎲 Creando enfrentamientos para ronda:", rondaId);
-  console.log("📊 equipoAOriginal:", equipoAOriginal);
-  console.log("📊 equipoBOriginal:", equipoBOriginal);
+  console.log("📊 equipoAOriginal (con órdenes):", equipoAOriginal);
+  console.log("📊 equipoBOriginal (con órdenes):", equipoBOriginal);
 
   return fetch(`/api/ronda/${rondaId}`)
     .then((res) => res.json())
     .then((data) => {
-      console.log("📥 Datos de la ronda desde API:", data);
+      console.log("📥 Datos completos de la ronda desde API:", data);
 
-      // Crear un mapa de apuestas por jugador_id y también por orden
+      // Verificar que hay apuestas
+      if (!data.apuestas || data.apuestas.length === 0) {
+        console.error("❌ No hay apuestas en esta ronda");
+        return {
+          rondaId,
+          totalEnfrentamientos: 0,
+          error: "No hay apuestas en la ronda",
+        };
+      }
+
+      // Crear mapa de apuestas por jugador_id
       const apuestasPorJugador = {};
-      const apuestasPorOrden = {
-        A: [],
-        B: [],
-      };
+      const apuestasPorOrden = { A: [], B: [] };
 
       data.apuestas.forEach((a) => {
         apuestasPorJugador[a.jugador_id] = a;
@@ -643,16 +650,16 @@ function crearEnfrentamientosPorOrden(
         } else {
           apuestasPorOrden.B.push(a);
         }
-        console.log(`📌 Apuesta:`, {
-          id: a.id,
-          jugador: a.jugador_nombre,
+        console.log(`📌 Apuesta encontrada en BD:`, {
+          id_apuesta: a.id,
           jugador_id: a.jugador_id,
+          jugador: a.jugador_nombre,
           equipo: a.nombre_equipo,
           monto: a.monto_apuesta,
         });
       });
 
-      // Ordenar las apuestas por ID para mantener el orden de creación
+      // Ordenar por ID (mantiene orden de creación)
       apuestasPorOrden.A.sort((a, b) => a.id - b.id);
       apuestasPorOrden.B.sort((a, b) => a.id - b.id);
 
@@ -661,7 +668,7 @@ function crearEnfrentamientosPorOrden(
 
       const emparejamientos = [];
 
-      // Usar el orden de las apuestas en la BD (que debería coincidir con el UI)
+      // Crear enfrentamientos en el mismo orden
       for (
         let i = 0;
         i < Math.min(apuestasPorOrden.A.length, apuestasPorOrden.B.length);
@@ -675,12 +682,16 @@ function crearEnfrentamientosPorOrden(
           const montoB = parseFloat(apuestaB.monto_apuesta) || 0;
           const montoEnfrentamiento = (montoA + montoB) / 2;
 
-          console.log(`💰 Enfrentamiento ${i + 1}:`, {
+          console.log(`💰 Creando enfrentamiento ${i + 1}:`, {
             id_apuestaA: apuestaA.id,
             jugadorA: apuestaA.jugador_nombre,
+            id_jugadorA: apuestaA.jugador_id,
+            montoA: montoA,
             id_apuestaB: apuestaB.id,
             jugadorB: apuestaB.jugador_nombre,
-            monto: montoEnfrentamiento,
+            id_jugadorB: apuestaB.jugador_id,
+            montoB: montoB,
+            montoEnfrentamiento: montoEnfrentamiento,
           });
 
           emparejamientos.push({
@@ -688,10 +699,12 @@ function crearEnfrentamientosPorOrden(
             jugadorB_id: apuestaB.id,
             monto: montoEnfrentamiento,
           });
+        } else {
+          console.error(`❌ No se encontraron apuestas para índice ${i}`);
         }
       }
 
-      console.log("📦 Emparejamientos a enviar:", emparejamientos);
+      console.log("📦 Emparejamientos a enviar al servidor:", emparejamientos);
 
       if (emparejamientos.length === 0) {
         return {
@@ -705,16 +718,33 @@ function crearEnfrentamientosPorOrden(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rondaId, emparejamientos }),
-      }).then(async (res) => {
-        const text = await res.text();
-        console.log("📨 Respuesta de enfrentar:", text);
+      })
+        .then(async (res) => {
+          const responseText = await res.text();
+          console.log("📨 Respuesta del servidor (texto):", responseText);
 
-        if (!res.ok) {
-          throw new Error(text);
-        }
+          if (!res.ok) {
+            throw new Error(responseText);
+          }
 
-        return { rondaId, totalEnfrentamientos: emparejamientos.length };
-      });
+          // Intentar parsear JSON
+          try {
+            const jsonResponse = JSON.parse(responseText);
+            console.log("✅ Respuesta JSON:", jsonResponse);
+          } catch (e) {
+            console.log("📝 Respuesta en texto plano");
+          }
+
+          return { rondaId, totalEnfrentamientos: emparejamientos.length };
+        })
+        .catch((err) => {
+          console.error("❌ Error en fetch a /api/ronda/enfrentar:", err);
+          throw err;
+        });
+    })
+    .catch((err) => {
+      console.error("❌ Error en crearEnfrentamientosPorOrden:", err);
+      return { rondaId, totalEnfrentamientos: 0, error: err.message };
     });
 }
 
