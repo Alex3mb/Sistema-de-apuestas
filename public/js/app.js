@@ -620,30 +620,57 @@ function crearEnfrentamientosPorOrden(
   equipoAOriginal,
   equipoBOriginal,
 ) {
-  console.log("🎲 Creando enfrentamientos para ronda:", rondaId);
-  console.log("📊 equipoAOriginal:", equipoAOriginal);
-  console.log("📊 equipoBOriginal:", equipoBOriginal);
+  console.log("🔴🔴🔴 INICIO crearEnfrentamientosPorOrden 🔴🔴🔴");
+  console.log("🎲 rondaId:", rondaId);
+  console.log("📊 equipoAOriginal:", JSON.stringify(equipoAOriginal, null, 2));
+  console.log("📊 equipoBOriginal:", JSON.stringify(equipoBOriginal, null, 2));
 
   return fetch(`/api/ronda/${rondaId}`)
-    .then((res) => res.json())
+    .then((res) => {
+      console.log("📡 Respuesta de fetch /api/ronda/:", res.status);
+      return res.json();
+    })
     .then((data) => {
-      console.log("📥 Datos de la ronda desde API:", data);
+      console.log(
+        "📥 Datos completos de la ronda:",
+        JSON.stringify(data, null, 2),
+      );
 
       if (!data.apuestas || data.apuestas.length === 0) {
-        console.error("❌ No hay apuestas en esta ronda");
+        console.error("❌ ERROR CRÍTICO: No hay apuestas en esta ronda");
         return { rondaId, totalEnfrentamientos: 0, error: "No hay apuestas" };
       }
 
-      // Separar apuestas por equipo y ordenar por ID
-      const apuestasA = data.apuestas
-        .filter((a) => a.nombre_equipo === "A")
-        .sort((a, b) => a.id - b.id);
-      const apuestasB = data.apuestas
-        .filter((a) => a.nombre_equipo === "B")
-        .sort((a, b) => a.id - b.id);
+      console.log(`✅ Total apuestas: ${data.apuestas.length}`);
 
-      console.log("📊 Apuestas ordenadas - Equipo A:", apuestasA);
-      console.log("📊 Apuestas ordenadas - Equipo B:", apuestasB);
+      // Separar por equipo
+      const apuestasA = data.apuestas.filter((a) => a.nombre_equipo === "A");
+      const apuestasB = data.apuestas.filter((a) => a.nombre_equipo === "B");
+
+      console.log(
+        `📊 Apuestas equipo A: ${apuestasA.length}, equipo B: ${apuestasB.length}`,
+      );
+
+      // Ordenar por ID
+      apuestasA.sort((a, b) => a.id - b.id);
+      apuestasB.sort((a, b) => a.id - b.id);
+
+      console.log(
+        "📊 Apuestas A ordenadas:",
+        apuestasA.map((a) => ({
+          id: a.id,
+          nombre: a.jugador_nombre,
+          monto: a.monto_apuesta,
+        })),
+      );
+      console.log(
+        "📊 Apuestas B ordenadas:",
+        apuestasB.map((a) => ({
+          id: a.id,
+          nombre: a.jugador_nombre,
+          monto: a.monto_apuesta,
+        })),
+      );
 
       const emparejamientos = [];
 
@@ -651,32 +678,43 @@ function crearEnfrentamientosPorOrden(
         const apuestaA = apuestasA[i];
         const apuestaB = apuestasB[i];
 
-        // CALCULAR EL MONTO (promedio)
+        console.log(`\n🔍 Procesando índice ${i}:`);
+        console.log(
+          `   Apuesta A: ID=${apuestaA.id}, jugador_id=${apuestaA.jugador_id}, nombre=${apuestaA.jugador_nombre}, monto=${apuestaA.monto_apuesta}`,
+        );
+        console.log(
+          `   Apuesta B: ID=${apuestaB.id}, jugador_id=${apuestaB.jugador_id}, nombre=${apuestaB.jugador_nombre}, monto=${apuestaB.monto_apuesta}`,
+        );
+
         const montoA = parseFloat(apuestaA.monto_apuesta) || 0;
         const montoB = parseFloat(apuestaB.monto_apuesta) || 0;
         const montoEnfrentamiento = (montoA + montoB) / 2;
 
-        console.log(`💰 Creando enfrentamiento ${i + 1}:`, {
-          apuestaA_id: apuestaA.id,
-          jugadorA_id: apuestaA.jugador_id,
-          jugadorA: apuestaA.jugador_nombre,
-          apuestaB_id: apuestaB.id,
-          jugadorB_id: apuestaB.jugador_id,
-          jugadorB: apuestaB.jugador_nombre,
+        console.log(`   💰 Monto calculado: ${montoEnfrentamiento}`);
+
+        emparejamientos.push({
+          jugadorA_id: apuestaA.id, // ← ID de la apuesta (correcto)
+          jugadorB_id: apuestaB.id, // ← ID de la apuesta (correcto)
           monto: montoEnfrentamiento,
         });
 
-        // ⚠️ IMPORTANTE: Enviamos los IDs de las APUESTAS, no de los jugadores
-        emparejamientos.push({
-          jugadorA_id: apuestaA.id, // ← ID de la tabla apuestas_ronda
-          jugadorB_id: apuestaB.id, // ← ID de la tabla apuestas_ronda
-          monto: montoEnfrentamiento,
-        });
+        console.log(
+          `   ✅ Enfrentamiento agregado:`,
+          emparejamientos[emparejamientos.length - 1],
+        );
       }
 
-      console.log("📦 Emparejamientos a enviar:", emparejamientos);
+      console.log(
+        "\n📦 TOTAL emparejamientos a enviar:",
+        emparejamientos.length,
+      );
+      console.log(
+        "📦 emparejamientos:",
+        JSON.stringify(emparejamientos, null, 2),
+      );
 
       if (emparejamientos.length === 0) {
+        console.error("❌ No hay enfrentamientos para crear");
         return {
           rondaId,
           totalEnfrentamientos: 0,
@@ -684,27 +722,41 @@ function crearEnfrentamientosPorOrden(
         };
       }
 
+      console.log("📤 Enviando a /api/ronda/enfrentar...");
+
       return fetch("/api/ronda/enfrentar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rondaId, emparejamientos }),
       }).then(async (res) => {
         const responseText = await res.text();
-        console.log("📨 Respuesta del servidor:", responseText);
+        console.log("📨 Respuesta del servidor (status):", res.status);
+        console.log("📨 Respuesta del servidor (texto):", responseText);
 
         if (!res.ok) {
-          throw new Error(responseText);
+          throw new Error(`HTTP ${res.status}: ${responseText}`);
         }
 
         try {
-          return JSON.parse(responseText);
+          const jsonResponse = JSON.parse(responseText);
+          console.log("✅ Respuesta parseada:", jsonResponse);
+          return {
+            rondaId,
+            totalEnfrentamientos: emparejamientos.length,
+            respuesta: jsonResponse,
+          };
         } catch (e) {
+          console.log("📝 Respuesta en texto plano (no JSON)");
           return { rondaId, totalEnfrentamientos: emparejamientos.length };
         }
       });
     })
     .catch((err) => {
-      console.error("❌ Error en crearEnfrentamientosPorOrden:", err);
+      console.error(
+        "❌ Error CATASTRÓFICO en crearEnfrentamientosPorOrden:",
+        err,
+      );
+      console.error("   Stack:", err.stack);
       return { rondaId, totalEnfrentamientos: 0, error: err.message };
     });
 }
