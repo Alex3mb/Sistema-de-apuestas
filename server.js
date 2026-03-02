@@ -330,10 +330,7 @@ app.post("/api/ronda/enfrentar", async (req, res) => {
   console.log(
     `📥 POST /api/ronda/enfrentar - Ronda ${rondaId}, ${emparejamientos?.length} enfrentamientos`,
   );
-  console.log(
-    "📦 Datos recibidos (IDs de jugadores):",
-    JSON.stringify(emparejamientos, null, 2),
-  );
+  console.log("📦 Datos recibidos:", JSON.stringify(emparejamientos, null, 2));
 
   if (!rondaId || !emparejamientos || emparejamientos.length === 0) {
     return res.status(400).json({ error: "Datos incompletos" });
@@ -345,53 +342,36 @@ app.post("/api/ronda/enfrentar", async (req, res) => {
     await client.query("BEGIN");
 
     for (const e of emparejamientos) {
-      // Buscar el ID de la apuesta para el jugador A en esta ronda
-      const resA = await client.query(
-        "SELECT id FROM apuestas_ronda WHERE ronda_id = $1 AND jugador_id = $2",
-        [rondaId, e.jugadorA_id],
-      );
-      if (resA.rows.length === 0) {
-        throw new Error(
-          `No se encontró apuesta para jugador ${e.jugadorA_id} en ronda ${rondaId}`,
-        );
-      }
-      const apuestaAId = resA.rows[0].id;
+      console.log(`Insertando enfrentamiento:`, {
+        rondaId,
+        jugadorA_id: e.jugadorA_id,
+        jugadorB_id: e.jugadorB_id,
+        monto: e.monto,
+      });
 
-      // Buscar el ID de la apuesta para el jugador B
-      const resB = await client.query(
-        "SELECT id FROM apuestas_ronda WHERE ronda_id = $1 AND jugador_id = $2",
-        [rondaId, e.jugadorB_id],
-      );
-      if (resB.rows.length === 0) {
-        throw new Error(
-          `No se encontró apuesta para jugador ${e.jugadorB_id} en ronda ${rondaId}`,
-        );
-      }
-      const apuestaBId = resB.rows[0].id;
-
-      // Insertar enfrentamiento con los IDs de apuestas correctos
       await client.query(
         `INSERT INTO enfrentamientos 
          (ronda_id, jugador_equipoA_id, jugador_equipoB_id, monto_enfrentamiento) 
          VALUES ($1, $2, $3, $4)`,
-        [rondaId, apuestaAId, apuestaBId, e.monto],
-      );
-
-      console.log(
-        `✅ Enfrentamiento insertado: jugadorA_id=${e.jugadorA_id} (apuestaId=${apuestaAId}), jugadorB_id=${e.jugadorB_id} (apuestaId=${apuestaBId})`,
+        [rondaId, e.jugadorA_id, e.jugadorB_id, e.monto || 0],
       );
     }
 
     await client.query("COMMIT");
     console.log("✅ Todos los enfrentamientos guardados");
-    res.json({ mensaje: "Enfrentamientos creados exitosamente" });
+    res.json({
+      mensaje: "Enfrentamientos creados exitosamente",
+      count: emparejamientos.length,
+    });
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("❌ Error creando enfrentamientos:", error);
-    res.status(500).json({
-      error: "Error al crear enfrentamientos",
-      detalle: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        error: "Error al crear enfrentamientos",
+        detalle: error.message,
+      });
   } finally {
     client.release();
   }

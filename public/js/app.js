@@ -621,24 +621,20 @@ function crearEnfrentamientosPorOrden(
   equipoBOriginal,
 ) {
   console.log("🎲 Creando enfrentamientos para ronda:", rondaId);
-  console.log("📊 equipoAOriginal (con órdenes):", equipoAOriginal);
-  console.log("📊 equipoBOriginal (con órdenes):", equipoBOriginal);
+  console.log("📊 equipoAOriginal:", equipoAOriginal);
+  console.log("📊 equipoBOriginal:", equipoBOriginal);
 
   return fetch(`/api/ronda/${rondaId}`)
     .then((res) => res.json())
     .then((data) => {
-      console.log("📥 Datos completos de la ronda desde API:", data);
+      console.log("📥 Datos de la ronda desde API:", data);
 
       if (!data.apuestas || data.apuestas.length === 0) {
         console.error("❌ No hay apuestas en esta ronda");
-        return {
-          rondaId,
-          totalEnfrentamientos: 0,
-          error: "No hay apuestas en la ronda",
-        };
+        return { rondaId, totalEnfrentamientos: 0, error: "No hay apuestas" };
       }
 
-      // Separar apuestas por equipo y ordenar por ID (mantiene orden de inserción)
+      // Separar apuestas por equipo y ordenar por ID
       const apuestasA = data.apuestas
         .filter((a) => a.nombre_equipo === "A")
         .sort((a, b) => a.id - b.id);
@@ -655,26 +651,30 @@ function crearEnfrentamientosPorOrden(
         const apuestaA = apuestasA[i];
         const apuestaB = apuestasB[i];
 
+        // CALCULAR EL MONTO (promedio)
         const montoA = parseFloat(apuestaA.monto_apuesta) || 0;
         const montoB = parseFloat(apuestaB.monto_apuesta) || 0;
         const montoEnfrentamiento = (montoA + montoB) / 2;
 
         console.log(`💰 Creando enfrentamiento ${i + 1}:`, {
+          apuestaA_id: apuestaA.id,
           jugadorA_id: apuestaA.jugador_id,
           jugadorA: apuestaA.jugador_nombre,
+          apuestaB_id: apuestaB.id,
           jugadorB_id: apuestaB.jugador_id,
           jugadorB: apuestaB.jugador_nombre,
           monto: montoEnfrentamiento,
         });
 
+        // ⚠️ IMPORTANTE: Enviamos los IDs de las APUESTAS, no de los jugadores
         emparejamientos.push({
-          jugadorA_id: apuestaA.jugador_id, // Enviamos ID del jugador, no de la apuesta
-          jugadorB_id: apuestaB.jugador_id,
+          jugadorA_id: apuestaA.id, // ← ID de la tabla apuestas_ronda
+          jugadorB_id: apuestaB.id, // ← ID de la tabla apuestas_ronda
           monto: montoEnfrentamiento,
         });
       }
 
-      console.log("📦 Emparejamientos a enviar al servidor:", emparejamientos);
+      console.log("📦 Emparejamientos a enviar:", emparejamientos);
 
       if (emparejamientos.length === 0) {
         return {
@@ -691,8 +691,16 @@ function crearEnfrentamientosPorOrden(
       }).then(async (res) => {
         const responseText = await res.text();
         console.log("📨 Respuesta del servidor:", responseText);
-        if (!res.ok) throw new Error(responseText);
-        return { rondaId, totalEnfrentamientos: emparejamientos.length };
+
+        if (!res.ok) {
+          throw new Error(responseText);
+        }
+
+        try {
+          return JSON.parse(responseText);
+        } catch (e) {
+          return { rondaId, totalEnfrentamientos: emparejamientos.length };
+        }
       });
     })
     .catch((err) => {
