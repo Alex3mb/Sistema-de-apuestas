@@ -626,3 +626,97 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`📁 Archivos estáticos: ${path.join(__dirname, "public")}`);
   console.log(`📁 Base de datos: PostgreSQL en Render`);
 });
+
+// ============================================
+// RUTA TEMPORAL PARA CORREGIR ENFRENTAMIENTOS
+// ============================================
+app.get("/api/corregir-enfrentamientos", async (req, res) => {
+  const client = await db.pool.connect();
+  let reporte = [];
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. Obtener todos los enfrentamientos con problemas
+    const enfrentamientos = await client.query(`
+      SELECT e.id, e.ronda_id, e.monto_enfrentamiento
+      FROM enfrentamientos e
+      WHERE e.jugador_equipoA_id IS NULL OR e.jugador_equipoB_id IS NULL
+    `);
+
+    reporte.push(
+      `🔍 Encontrados ${enfrentamientos.rows.length} enfrentamientos con problemas`,
+    );
+
+    // 2. Para cada enfrentamiento, buscar las apuestas correctas
+    for (const enf of enfrentamientos.rows) {
+      // Obtener las apuestas de esta ronda
+      const apuestas = await client.query(
+        `
+        SELECT ar.id, ar.jugador_id, ar.equipo_id, j.nombre, e.nombre_equipo
+        FROM apuestas_ronda ar
+        JOIN jugadores j ON ar.jugador_id = j.id
+        JOIN equipos_ronda e ON ar.equipo_id = e.id
+        WHERE ar.ronda_id = $1
+        ORDER BY ar.id ASC
+      `,
+        [enf.ronda_id],
+      );
+
+      reporte.push(
+        `\n📊 Ronda ${enf.ronda_id}: ${apuestas.rows.length} apuestas`,
+      );
+
+      // Si hay al menos 2 apuestas, tomar las primeras dos (por orden)
+      if (apuestas.rows.length >= 2) {
+        const apuestaA = apuestas.rows[0];
+        const apuestaB = apuestas.rows[1];
+
+        await client.query(
+          `
+          UPDATE enfrentamientos 
+          SET jugador_equipoA_id = $1, jugador_equipoB_id = $2
+          WHERE id = $3
+        `,
+          [apuestaA.id, apuestaB.id, enf.id],
+        );
+
+        reporte.push(
+          `  ✅ Corregido: ${apuestaA.nombre} (ID: ${apuestaA.id}) vs ${apuestaB.nombre} (ID: ${apuestaB.id})`,
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
+    // Verificar resultados
+    const verificacion = await client.query(`
+      SELECT e.id, e.jugador_equipoA_id, e.jugador_equipoB_id,
+             a1.jugador_id as jugadorA_id, a2.jugador_id as jugadorB_id,
+             j1.nombre as nombreA, j2.nombre as nombreB
+      FROM enfrentamientos e
+      LEFT JOIN apuestas_ronda a1 ON e.jugador_equipoA_id = a1.id
+      LEFT JOIN apuestas_ronda a2 ON e.jugador_equipoB_id = a2.id
+      LEFT JOIN jugadores j1 ON a1.jugador_id = j1.id
+      LEFT JOIN jugadores j2 ON a2.jugador_id = j2.id
+      WHERE e.ronda_id IN (SELECT DISTINCT ronda_id FROM enfrentamientos WHERE jugador_equipoA_id IS NULL OR jugador_equipoB_id IS NULL)
+    `);
+
+    reporte.push("\n📋 VERIFICACIÓN FINAL:");
+    verificacion.rows.forEach((v) => {
+      reporte.push(
+        `Enfrentamiento ${v.id}: ${v.nombreA || "NULL"} vs ${v.nombreB || "NULL"}`,
+      );
+    });
+
+    res.json({
+      success: true,
+      reporte: reporte,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: error.message, stack: error.stack });
+  } finally {
+    client.release();
+  }
+});
