@@ -547,6 +547,78 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// ============================================
+// RUTA TEMPORAL PARA REPARAR SECUENCIAS (BORRAR DESPUÉS DE USAR)
+// ============================================
+app.get("/api/reparar-sequencias", async (req, res) => {
+  console.log("🔧 Iniciando reparación de secuencias...");
+
+  const client = await db.pool.connect();
+  let resultados = [];
+
+  try {
+    // 1. Verificar datos actuales
+    const jugadores = await client.query("SELECT COUNT(*) FROM jugadores");
+    resultados.push(`Jugadores: ${jugadores.rows[0].count}`);
+
+    const rondas = await client.query("SELECT COUNT(*) FROM rondas");
+    resultados.push(`Rondas: ${rondas.rows[0].count}`);
+
+    // 2. Reparar secuencia de jugadores
+    await client.query(`
+      SELECT setval('jugadores_id_seq', (SELECT COALESCE(MAX(id), 0) FROM jugadores));
+    `);
+    resultados.push("✅ Secuencia jugadores reparada");
+
+    // 3. Reparar secuencia de rondas
+    await client.query(`
+      SELECT setval('rondas_id_seq', (SELECT COALESCE(MAX(id), 0) FROM rondas));
+    `);
+    resultados.push("✅ Secuencia rondas reparada");
+
+    // 4. Reparar secuencia de equipos_ronda
+    await client.query(`
+      SELECT setval('equipos_ronda_id_seq', (SELECT COALESCE(MAX(id), 0) FROM equipos_ronda));
+    `);
+    resultados.push("✅ Secuencia equipos_ronda reparada");
+
+    // 5. Reparar secuencia de apuestas_ronda
+    await client.query(`
+      SELECT setval('apuestas_ronda_id_seq', (SELECT COALESCE(MAX(id), 0) FROM apuestas_ronda));
+    `);
+    resultados.push("✅ Secuencia apuestas_ronda reparada");
+
+    // 6. Reparar secuencia de enfrentamientos
+    await client.query(`
+      SELECT setval('enfrentamientos_id_seq', (SELECT COALESCE(MAX(id), 0) FROM enfrentamientos));
+    `);
+    resultados.push("✅ Secuencia enfrentamientos reparada");
+
+    // 7. Verificar valores de secuencias
+    const seqJugadores = await client.query(
+      "SELECT currval('jugadores_id_seq')",
+    );
+    resultados.push(
+      `📊 Nueva secuencia jugadores: ${seqJugadores.rows[0].currval}`,
+    );
+
+    res.json({
+      success: true,
+      message: "Secuencias reparadas correctamente",
+      resultados: resultados,
+    });
+  } catch (error) {
+    console.error("❌ Error reparando secuencias:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      detalles: error,
+    });
+  } finally {
+    client.release();
+  }
+});
+
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
