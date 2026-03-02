@@ -325,12 +325,16 @@ app.get("/api/ronda/:id", async (req, res) => {
 // Crear enfrentamientos - POSTGRESQL
 // Crear enfrentamientos - versión con búsqueda de IDs de apuestas
 // Crear enfrentamientos - versión con búsqueda de IDs de apuestas
+// Crear enfrentamientos - VERSIÓN CORREGIDA
+// Crear enfrentamientos - VERSIÓN ULTRA CORREGIDA
 app.post("/api/ronda/enfrentar", async (req, res) => {
   const { rondaId, emparejamientos } = req.body;
+  console.log("🔴🔴🔴 POST /api/ronda/enfrentar 🔴🔴🔴");
+  console.log(`📥 Ronda ID: ${rondaId}`);
   console.log(
-    `📥 POST /api/ronda/enfrentar - Ronda ${rondaId}, ${emparejamientos?.length} enfrentamientos`,
+    `📥 Emparejamientos recibidos:`,
+    JSON.stringify(emparejamientos, null, 2),
   );
-  console.log("📦 Datos recibidos:", JSON.stringify(emparejamientos, null, 2));
 
   if (!rondaId || !emparejamientos || emparejamientos.length === 0) {
     return res.status(400).json({ error: "Datos incompletos" });
@@ -342,36 +346,76 @@ app.post("/api/ronda/enfrentar", async (req, res) => {
     await client.query("BEGIN");
 
     for (const e of emparejamientos) {
-      console.log(`Insertando enfrentamiento:`, {
-        rondaId,
-        jugadorA_id: e.jugadorA_id,
-        jugadorB_id: e.jugadorB_id,
-        monto: e.monto,
-      });
+      // Verificar que los IDs sean válidos
+      if (!e.jugadorA_id || !e.jugadorB_id) {
+        console.error("❌ IDs inválidos:", e);
+        throw new Error(
+          `IDs inválidos: jugadorA_id=${e.jugadorA_id}, jugadorB_id=${e.jugadorB_id}`,
+        );
+      }
 
-      await client.query(
+      // Verificar que los IDs existan en apuestas_ronda
+      const checkA = await client.query(
+        "SELECT id FROM apuestas_ronda WHERE id = $1 AND ronda_id = $2",
+        [e.jugadorA_id, rondaId],
+      );
+      if (checkA.rows.length === 0) {
+        throw new Error(
+          `La apuesta ${e.jugadorA_id} no existe en la ronda ${rondaId}`,
+        );
+      }
+
+      const checkB = await client.query(
+        "SELECT id FROM apuestas_ronda WHERE id = $1 AND ronda_id = $2",
+        [e.jugadorB_id, rondaId],
+      );
+      if (checkB.rows.length === 0) {
+        throw new Error(
+          `La apuesta ${e.jugadorB_id} no existe en la ronda ${rondaId}`,
+        );
+      }
+
+      // Insertar el enfrentamiento con TODOS los campos
+      const result = await client.query(
         `INSERT INTO enfrentamientos 
          (ronda_id, jugador_equipoA_id, jugador_equipoB_id, monto_enfrentamiento) 
-         VALUES ($1, $2, $3, $4)`,
-        [rondaId, e.jugadorA_id, e.jugadorB_id, e.monto || 0],
+         VALUES ($1, $2, $3, $4) RETURNING id`,
+        [rondaId, e.jugadorA_id, e.jugadorB_id, e.monto],
+      );
+
+      console.log(
+        `✅ Enfrentamiento insertado - ID: ${result.rows[0].id}, jugadorA_id: ${e.jugadorA_id}, jugadorB_id: ${e.jugadorB_id}`,
       );
     }
 
     await client.query("COMMIT");
-    console.log("✅ Todos los enfrentamientos guardados");
+
+    // Verificar que se insertaron correctamente
+    const verify = await client.query(
+      "SELECT * FROM enfrentamientos WHERE ronda_id = $1",
+      [rondaId],
+    );
+    console.log(
+      `📊 Verificación final: ${verify.rows.length} enfrentamientos en BD`,
+    );
+    verify.rows.forEach((v) => {
+      console.log(
+        `   - ID: ${v.id}, A: ${v.jugador_equipoA_id}, B: ${v.jugador_equipoB_id}, Monto: ${v.monto_enfrentamiento}`,
+      );
+    });
+
     res.json({
       mensaje: "Enfrentamientos creados exitosamente",
       count: emparejamientos.length,
+      verificacion: verify.rows.length,
     });
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("❌ Error creando enfrentamientos:", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al crear enfrentamientos",
-        detalle: error.message,
-      });
+    res.status(500).json({
+      error: "Error al crear enfrentamientos",
+      detalle: error.message,
+    });
   } finally {
     client.release();
   }
