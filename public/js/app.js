@@ -638,7 +638,7 @@ function crearEnfrentamientosPorOrden(
         };
       }
 
-      // Crear arrays de apuestas ordenadas por equipo
+      // Separar apuestas por equipo y ordenar por ID (mantiene orden de inserción)
       const apuestasA = data.apuestas
         .filter((a) => a.nombre_equipo === "A")
         .sort((a, b) => a.id - b.id);
@@ -668,7 +668,7 @@ function crearEnfrentamientosPorOrden(
         });
 
         emparejamientos.push({
-          jugadorA_id: apuestaA.jugador_id, // Enviamos ID del jugador
+          jugadorA_id: apuestaA.jugador_id, // Enviamos ID del jugador, no de la apuesta
           jugadorB_id: apuestaB.jugador_id,
           monto: montoEnfrentamiento,
         });

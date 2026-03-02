@@ -324,6 +324,7 @@ app.get("/api/ronda/:id", async (req, res) => {
 // Crear enfrentamientos - POSTGRESQL
 // Crear enfrentamientos - POSTGRESQL
 // Crear enfrentamientos - versión con búsqueda de IDs de apuestas
+// Crear enfrentamientos - versión con búsqueda de IDs de apuestas
 app.post("/api/ronda/enfrentar", async (req, res) => {
   const { rondaId, emparejamientos } = req.body;
   console.log(
